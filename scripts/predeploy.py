@@ -29,7 +29,7 @@ def main():
     test_url = with_search_path(url, "ll_selftest")
     env = dict(os.environ, LL_TEST_DATABASE_URL=test_url, LL_SKIP_DOTENV="1")
     print("Running the test suite against Postgres (schema ll_selftest)…", flush=True)
-    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-x", "-p", "no:cacheprovider"], cwd=ROOT, env=env)
+    r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-rf", "-p", "no:cacheprovider"], cwd=ROOT, env=env)
     import psycopg
     with psycopg.connect(url, autocommit=True) as c:
         c.execute("DROP SCHEMA IF EXISTS ll_selftest CASCADE")

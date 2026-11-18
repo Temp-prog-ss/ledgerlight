@@ -73,7 +73,8 @@ def close():
 
 
 def _sql(sql):
-    return sql.replace("?", "%s") if is_postgres() else sql
+    """`?` placeholders -> `%s` for Postgres. A literal `%` (e.g. LIKE 'job:%') must be doubled for psycopg."""
+    return sql.replace("%", "%%").replace("?", "%s") if is_postgres() else sql
 
 
 def _param(v):

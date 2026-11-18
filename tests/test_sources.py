@@ -172,3 +172,9 @@ def test_unclaimed_estates_tolerates_other_column_names():
     created = registers.ingest_unclaimed_estates(alt2, today="2026-11-18")
     d = json.loads(db.one("SELECT data FROM events WHERE id=?", (created[0],))["data"])
     assert d["place_of_death"] == "Hull" and d["date_listed"] == "4/4/2026"
+
+
+def test_postgres_sql_escapes_literal_percent(monkeypatch):
+    """A literal % (LIKE 'job:%') broke psycopg; ? placeholders must still become %s."""
+    monkeypatch.setattr(db, "is_postgres", lambda: True)
+    assert db._sql("SELECT * FROM t WHERE key LIKE 'job:%' AND a=?") == "SELECT * FROM t WHERE key LIKE 'job:%%' AND a=%s"
