@@ -218,10 +218,14 @@ class ObjectionIn(BaseModel):
 # ---------------- auth & account ----------------
 
 def _client_ip(request):
-    """Only trust X-Forwarded-For behind our own proxy (LL_TRUST_PROXY), and then only the address it appended."""
-    if config.settings.trust_proxy and request.headers.get("x-forwarded-for"):
-        return request.headers["x-forwarded-for"].split(",")[-1].strip()
-    return request.client.host if request.client else "?"
+    """Use the transport peer address for security-sensitive throttling.
+
+    Do not trust X-Forwarded-For here: clients can supply that header
+    themselves unless a trusted proxy has independently validated the chain.
+    Using the peer address prevents callers from rotating a spoofed header to
+    bypass login and signup throttles.
+    """
+    return request.client.host if request.client else "unknown"
 
 
 async def signup(request):
