@@ -1,0 +1,78 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repository.
+# Creates the web service (portal, admin, outreach console, API), the background
+# worker and the Postgres database. Secrets marked `sync: false` are typed into
+# Render's dashboard when the Blueprint is created — never committed here.
+
+envVarGroups:
+  - name: ledgerlight-shared
+    envVars:
+      - key: LL_ENV
+        value: production
+      - key: LL_SKIP_DOTENV
+        value: "1"
+      - key: PYTHON_VERSION
+        value: "3.12.8"
+      - key: LL_SECRET_KEY            # shared by web + worker (sessions, unsubscribe links)
+        generateValue: true
+      - key: LL_DRY_RUN_DELIVERY      # "true" = write emails to a log instead of sending. Set "false" to go live.
+        value: "true"
+      - key: COMPANIES_HOUSE_API_KEY
+        sync: false
+      - key: COMPANIES_HOUSE_STREAM_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OUTREACH_FROM
+        sync: false
+      - key: OUTREACH_FROM_NAME
+        sync: false
+      - key: OUTREACH_PW_MAIN
+        sync: false
+      - key: OUTREACH_COMPANY_NAME
+        sync: false
+      - key: OUTREACH_POSTAL_ADDRESS
+        sync: false
+      - key: OUTREACH_TEST_RECIPIENTS
+        sync: false
+
+services:
+  - type: web
+    name: ledgerlight-api
+    runtime: python
+    region: frankfurt
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    preDeployCommand: python -m scripts.predeploy
+    startCommand: uvicorn app.web:create_app --factory --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /health
+    envVars:
+      - fromGroup: ledgerlight-shared
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ledgerlight-db
+          property: connectionString
+      - key: LL_TRUST_PROXY
+        value: "true"
+
+  - type: worker
+    name: ledgerlight-worker
+    runtime: python
+    region: frankfurt
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.worker
+    envVars:
+      - fromGroup: ledgerlight-shared
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ledgerlight-db
+          property: connectionString
+      # The worker learns the public web address from the web service (stored in the database at start-up).
+
+databases:
+  - name: ledgerlight-db
+    region: frankfurt
+    plan: basic-256mb
+    databaseName: ledgerlight
+    user: ledgerlight
+    postgresMajorVersion: "16"

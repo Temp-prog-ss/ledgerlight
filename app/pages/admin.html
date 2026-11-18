@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin · Ledgerlight</title>
+<style>
+:root{--accent:#0F4D3A;--bar:#2F7A5E;--paper:#F4F4F0;--card:#fff;--ink:#16201C;--ink2:#4A5752;--muted:#7C8782;--line:#E3E1D8;--soft:#EEF2EF;
+--good:#1E6B45;--good-bg:#E6F3EC;--warn:#8A5A00;--warn-bg:#FFF4D9;--bad:#9B2C2C;--bad-bg:#FDECEC;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.45 var(--sans)}
+button,input,select{font:inherit;color:inherit}h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0;letter-spacing:-.01em}
+.hidden{display:none!important}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}.fine{font-size:12.5px;color:var(--muted)}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:7px 13px;border-radius:7px;cursor:pointer;font-weight:600}
+.btn.ghost{background:#fff;color:var(--accent)}.btn.sm{padding:4px 9px;font-size:12.5px}.btn:disabled{opacity:.5;cursor:wait}
+.btn.danger{border-color:var(--bad);background:#fff;color:var(--bad)}
+input.i,select.i{padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fff}
+.msg{padding:9px 11px;border-radius:7px;margin:8px 0}.msg.err{background:var(--bad-bg);color:var(--bad)}.msg.ok{background:var(--good-bg);color:var(--good)}.msg.warn{background:var(--warn-bg);color:var(--warn)}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center}
+#login form{background:#fff;border:1px solid var(--line);border-radius:12px;padding:28px;width:360px}
+#login label{display:block;font-weight:600;font-size:13px;margin:12px 0}#login input{width:100%;margin-top:4px}
+.shell{display:grid;grid-template-columns:210px 1fr;min-height:100vh}
+aside{background:#13261F;color:#DDE7E2;padding:18px 12px;position:sticky;top:0;height:100vh}
+aside .logo{font-family:var(--serif);font-size:19px;font-weight:600;color:#fff;padding:0 10px 4px}aside .sub{font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;padding:0 10px 18px}
+aside button,aside a{display:flex;justify-content:space-between;width:100%;text-align:left;border:0;background:none;color:inherit;padding:9px 10px;border-radius:7px;cursor:pointer;font-weight:500;text-decoration:none;font-size:14px}
+aside button.on{background:#ffffff1a;color:#fff}aside button:hover,aside a:hover{background:#ffffff12}
+aside .cnt{background:#E7B54A;color:#13261F;border-radius:99px;font-size:11px;font-weight:700;padding:1px 7px}
+aside .foot{position:absolute;bottom:14px;left:12px;right:12px;font-size:12px;opacity:.75}
+main{padding:22px 28px;max-width:1400px}
+.head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}.head h2{font-size:24px}.sp{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px}.kpi b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;line-height:1.15}
+.kpi span{font-size:12.5px;color:var(--ink2)}.kpi.alert{border-color:#E7B54A;background:#FFFBF0}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card h3{font-size:16px;margin-bottom:10px}.card+.card{margin-top:0}.stack>.card{margin-bottom:16px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px}th{position:sticky;top:0;background:#FAFAF7;text-align:left;font-weight:600;color:var(--ink2);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text-align:right;font-family:var(--mono)}tr.click{cursor:pointer}tr.click:hover td{background:#F7FAF8}
+.tag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.tag.good{background:var(--good-bg);color:var(--good)}.tag.warn{background:var(--warn-bg);color:var(--warn)}.tag.bad{background:var(--bad-bg);color:var(--bad)}.tag.neutral{background:#EFEFEA;color:var(--ink2)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+/* bars */
+.hbar{display:grid;grid-template-columns:170px 1fr 60px;gap:8px;align-items:center;font-size:13px;margin:3px 0}
+.hbar .track{height:14px;position:relative}.hbar .fill{height:100%;background:var(--bar);border-radius:0 4px 4px 0;min-width:2px}
+.hbar .v{text-align:right;font-family:var(--mono);color:var(--ink2)}.hbar:hover .fill{background:var(--accent)}
+.vchart{display:flex;align-items:flex-end;gap:2px;height:150px;border-bottom:1px solid var(--line);padding-top:8px;position:relative}
+.vchart .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
+.vchart .col i{display:block;background:var(--bar);border-radius:4px 4px 0 0;min-height:1px}.vchart .col:hover i{background:var(--accent)}
+.vchart .col:hover .tip{display:block}.tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;padding:4px 8px;border-radius:6px;white-space:nowrap;z-index:3;pointer-events:none}
+.xlabels{display:flex;gap:2px;font-size:11px;color:var(--muted);margin-top:4px}.xlabels span{flex:1;text-align:center;white-space:nowrap;overflow:visible}
+/* drawer */
+#drawer{position:fixed;inset:0 0 0 auto;width:min(620px,100%);background:#fff;border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(0,0,0,.12);overflow:auto;padding:22px;z-index:20}
+#shade{position:fixed;inset:0;background:#0003;z-index:19}
+.kv{display:grid;grid-template-columns:150px 1fr;gap:5px 12px;margin-bottom:14px}.kv dt{color:var(--muted)}.kv dd{margin:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px;background:#FAFAF7;border-radius:10px;margin-bottom:14px}
+.secret{font-family:var(--mono);font-size:15px;background:var(--warn-bg);padding:8px 10px;border-radius:7px;user-select:all}
+@media (max-width:900px){.shell{grid-template-columns:1fr}aside{position:static;height:auto}aside .foot{position:static}.cols{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<section id="login" class="hidden">
+  <form id="lf"><h2>Ledgerlight admin</h2><p class="fine">Staff accounts only.</p>
+    <label>Email<input class="i" name="email" type="email" autocomplete="username" required></label>
+    <label>Password<input class="i" name="password" type="password" autocomplete="current-password" required></label>
+    <div id="lmsg"></div><button class="btn" style="width:100%">Sign in</button></form>
+</section>
+
+<div class="shell hidden" id="shell">
+  <aside>
+    <div class="logo">Ledgerlight</div><div class="sub">Admin</div>
+    <button data-v="overview" class="on">Overview</button>
+    <button data-v="customers">Customers <span class="cnt hidden" id="cVet"></span></button>
+    <button data-v="data">Data</button>
+    <button data-v="review">Review <span class="cnt hidden" id="cRev"></span></button>
+    <button data-v="jobs">Jobs <span class="cnt hidden" id="cJobs"></span></button>
+    <button data-v="audit">Audit log</button>
+    <a href="/outreach">Outreach console ↗</a>
+    <a href="/app">Customer portal ↗</a>
+    <div class="foot"><div id="meEmail"></div><button id="out" style="padding:6px 0">Sign out</button></div>
+  </aside>
+  <main>
+    <section id="v-overview">
+      <div class="head"><h2>Overview</h2><span class="fine" id="ovTime"></span><span class="sp"></span><button class="btn ghost sm" id="ovRefresh">Refresh</button></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="cols">
+        <div class="card"><h3>New events per day</h3><div class="fine" style="margin-bottom:4px">Last 14 days · hover a bar for the count</div><div id="perDay"></div></div>
+        <div class="card"><h3>Data sources</h3><div id="srcHealth"></div></div>
+      </div>
+      <div class="cols" style="margin-top:16px">
+        <div class="card"><h3>Events by type</h3><div id="byType"></div></div>
+        <div class="card"><h3>Events routed to each product</h3><div id="byBrand"></div><h3 style="margin-top:18px">Customers by product</h3><div id="custBrand"></div></div>
+      </div>
+    </section>
+
+    <section id="v-customers" class="hidden">
+      <div class="head"><h2>Customers</h2><span class="fine" id="custCount"></span><span class="sp"></span><input class="i" id="cq" placeholder="Search name, email or ID"></div>
+      <div class="filters"><select class="i" id="cStatus"><option value="">All statuses</option><option>trialing</option><option>active</option><option>past_due</option><option>canceled</option><option>unpaid</option></select>
+        <select class="i" id="cBrand"><option value="">All products</option></select><label class="fine"><input type="checkbox" id="cVetOnly"> Needs vetting only</label><label class="fine"><input type="checkbox" id="cInternal"> Show internal accounts</label></div>
+      <div class="tablewrap" id="custTable"></div>
+    </section>
+
+    <section id="v-data" class="hidden">
+      <div class="head"><h2>Data</h2><span class="fine">Every event collected, before plan limits</span></div>
+      <div class="filters"><input class="i" id="dq" placeholder="Company or number"><select class="i" id="dType"><option value="">All types</option></select>
+        <select class="i" id="dBrand"><option value="">All products</option></select><select class="i" id="dStatus"><option value="">Any status</option><option value="new">new</option><option value="processed">processed</option></select>
+        <input class="i" id="dScore" type="number" min="0" max="100" placeholder="Min score" style="width:100px"><select class="i" id="dSort"><option value="">Newest first</option><option value="score">Highest score</option></select></div>
+      <div class="tablewrap" id="dataTable"></div>
+    </section>
+
+    <section id="v-review" class="hidden">
+      <div class="head"><h2>Review</h2></div>
+      <div class="stack">
+        <div class="card"><h3>Wider-risk facts to check</h3><p class="fine">The watcher flags a fact when its source page changes. Check the source, edit if needed, then mark it reviewed so customers see it again.</p><div id="risks"></div></div>
+        <div class="card"><h3>Suppressions (objections and opt-outs)</h3>
+          <div class="filters"><select class="i" id="sKind"><option value="company">company number</option><option value="company_name">company name</option><option value="email">email</option><option value="phone">phone</option></select>
+            <input class="i" id="sVal" placeholder="Value"><input class="i" id="sWhy" placeholder="Reason"><button class="btn sm" id="sAdd">Suppress</button><span id="sMsg"></span></div>
+          <div class="tablewrap" id="supps"></div></div>
+      </div>
+    </section>
+
+    <section id="v-jobs" class="hidden">
+      <div class="head"><h2>Jobs</h2><span class="fine">The worker runs these on a schedule. "Run now" runs one immediately on this server.</span></div>
+      <div id="jobMsg"></div><div class="tablewrap" id="jobTable"></div>
+      <div class="card" style="margin-top:16px"><h3>Stream positions and source state</h3><div class="tablewrap" id="streams"></div></div>
+    </section>
+
+    <section id="v-audit" class="hidden">
+      <div class="head"><h2>Audit log</h2><span class="sp"></span><select class="i" id="aAction"><option value="">All actions</option></select></div>
+      <div class="tablewrap" id="auditTable"></div>
+    </section>
+  </main>
+</div>
+<div id="shade" class="hidden"></div><div id="drawer" class="hidden"></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const KEY = "ll_admin_token";
+let TOKEN = null, CUST = [], PLANS = [];
+try { TOKEN = sessionStorage.getItem(KEY); } catch (e) {}
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) { if (v == null || v === false) continue;
+    if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : v); }
+  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return n;
+}
+const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-GB");
+const day = s => s ? String(s).slice(0, 10) : "";
+const when = s => s ? String(s).replace("T", " ").slice(0, 16) : "";
+const nice = s => String(s || "").replace(/_/g, " ");
+function msg(box, text, kind = "err") { $(box).replaceChildren(text ? el("div", { class: "msg " + kind }, text) : ""); }
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", ...(TOKEN ? { Authorization: "Bearer " + TOKEN } : {}) } });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) { signOut(); throw new Error("Please sign in again"); }
+  if (!r.ok) throw new Error(d.error || "Request failed");
+  return d;
+}
+function table(cols, rows, onRow) {
+  if (!rows.length) return el("div", { class: "fine", style: "padding:24px;text-align:center" }, "Nothing here.");
+  return el("table", {}, el("thead", {}, el("tr", {}, cols.map(c => el("th", { style: c.n ? "text-align:right" : "" }, c.h)))),
+    el("tbody", {}, rows.map(r => el("tr", { class: onRow ? "click" : "", onclick: onRow ? () => onRow(r) : null }, cols.map(c => el("td", { class: c.n ? "n" : "" }, c.f ? c.f(r) : r[c.k] ?? ""))))));
+}
+const statusTag = s => el("span", { class: "tag " + ({ active: "good", trialing: "neutral", past_due: "warn", canceled: "bad", unpaid: "bad" }[s] || "neutral") }, nice(s));
+function hbars(rows, label, value) {
+  const max = Math.max(1, ...rows.map(value));
+  return rows.length ? rows.map(r => el("div", { class: "hbar", title: `${label(r)}: ${fmt(value(r))}` }, el("span", {}, label(r)),
+    el("div", { class: "track" }, el("div", { class: "fill", style: `width:${value(r) / max * 100}%` })), el("span", { class: "v" }, fmt(value(r))))) : [el("div", { class: "fine" }, "No data yet.")];
+}
+
+/* ---------- auth ---------- */
+$("#lf").addEventListener("submit", async e => {
+  e.preventDefault(); const f = new FormData(e.target); msg("#lmsg", "");
+  try { const d = await api("/v1/auth/login", { method: "POST", body: JSON.stringify({ email: f.get("email"), password: f.get("password") }) });
+    TOKEN = d.token; try { sessionStorage.setItem(KEY, TOKEN); } catch (x) {} await start(); } catch (err) { msg("#lmsg", err.message); }
+});
+function signOut() { TOKEN = null; try { sessionStorage.removeItem(KEY); } catch (e) {} $("#shell").classList.add("hidden"); $("#login").classList.remove("hidden"); }
+$("#out").addEventListener("click", signOut);
+async function start() {
+  const me = await api("/v1/me");
+  if (me.user.role !== "staff") { signOut(); msg("#lmsg", "This account isn't a staff account. Customers sign in at /app."); return; }
+  $("#meEmail").textContent = me.user.email;
+  $("#login").classList.add("hidden"); $("#shell").classList.remove("hidden");
+  show("overview");
+}
+$$("aside button[data-v]").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+function show(v) {
+  $$("aside button[data-v]").forEach(x => x.classList.toggle("on", x.dataset.v === v));
+  ["overview", "customers", "data", "review", "jobs", "audit"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  ({ overview: loadOverview, customers: loadCustomers, data: loadData, review: loadReview, jobs: loadJobs, audit: loadAudit })[v]().catch(err => alertBox(err.message));
+}
+function alertBox(t) { const m = $("main"); m.prepend(el("div", { class: "msg err" }, t)); setTimeout(() => m.firstChild?.classList?.contains("msg") && m.firstChild.remove(), 6000); }
+const badge = (id, n) => { $(id).textContent = n; $(id).classList.toggle("hidden", !n); };
+
+/* ---------- overview ---------- */
+$("#ovRefresh").addEventListener("click", () => loadOverview());
+async function loadOverview() {
+  const d = await api("/v1/admin/overview"), k = d.kpis;
+  $("#ovTime").textContent = "Updated " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  const failing = d.jobs.filter(j => j.status === "error" || j.stale).length;
+  badge("#cVet", k.awaiting_vetting); badge("#cRev", k.risk_review); badge("#cJobs", failing);
+  const tiles = [["Companies tracked", k.companies], ["Events collected", k.events_total], ["New today", k.events_today], ["Waiting to process", k.events_waiting, k.events_waiting > 500],
+    ["Customers", k.customers], ["Paying", k.paying], ["On trial", k.trialing], ["Trials ending in 3 days", k.trials_ending_3d, k.trials_ending_3d > 0],
+    ["Approx. MRR", "£" + fmt(k.mrr_gbp)], ["Rows exported this month", k.export_rows_month], ["Awaiting vetting", k.awaiting_vetting, k.awaiting_vetting > 0],
+    ["Sponsors on register", k.sponsors], ["Unclaimed estates", k.unclaimed_estates], ["Facts to review", k.risk_review, k.risk_review > 0], ["Jobs needing attention", failing, failing > 0]];
+  $("#kpis").replaceChildren(...tiles.map(([l, v, a]) => el("div", { class: "kpi" + (a ? " alert" : "") }, el("b", { class: "mono" }, typeof v === "number" ? fmt(v) : v), el("span", {}, l))));
+  const max = Math.max(1, ...d.events_per_day.map(x => x.n));
+  $("#perDay").replaceChildren(el("div", { class: "vchart" }, d.events_per_day.map(x => el("div", { class: "col" },
+      el("div", { class: "tip" }, `${new Date(x.date).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })}: ${fmt(x.n)}`), el("i", { style: `height:${x.n / max * 100}%` })))),
+    el("div", { class: "xlabels" }, d.events_per_day.map((x, i) => el("span", {}, i % 3 ? "" : new Date(x.date).toLocaleDateString("en-GB", { day: "numeric", month: "short" })))));
+  $("#byType").replaceChildren(...hbars(d.events_by_type, r => nice(r.event_type), r => r.n));
+  $("#byBrand").replaceChildren(...hbars(d.events_by_brand, r => r.brand, r => r.n));
+  const cb = {}; d.customers_by_brand.forEach(r => cb[r.brand] = (cb[r.brand] || 0) + r.n);
+  $("#custBrand").replaceChildren(...hbars(Object.entries(cb).map(([brand, n]) => ({ brand, n })).sort((a, b) => b.n - a.n), r => r.brand, r => r.n));
+  const key = ["gazette", "process", "sponsors", "unclaimed_estates", "ccjs", "instant", "digests", "outreach_send", "outreach_inbox"];
+  $("#srcHealth").replaceChildren(table([{ h: "Job", f: r => nice(r.job) }, { h: "Status", f: jobTag }, { h: "Last run", f: r => when(r.last_run) }],
+    d.jobs.filter(j => key.includes(j.job))), el("p", { class: "fine" }, "All jobs and their last result are under Jobs."));
+}
+const jobTag = r => r.status === "never" ? el("span", { class: "tag neutral" }, "not run yet") : r.status === "error" ? el("span", { class: "tag bad", title: r.result }, "✕ failing")
+  : r.stale ? el("span", { class: "tag warn" }, "! overdue") : el("span", { class: "tag good" }, "✓ ok");
+
+/* ---------- customers ---------- */
+["#cq", "#cStatus", "#cBrand", "#cVetOnly", "#cInternal"].forEach(s => $(s).addEventListener(s === "#cq" ? "input" : "change", renderCustomers));
+async function loadCustomers() {
+  const d = await api("/v1/admin/customers"); CUST = d.customers; PLANS = d.plans;
+  const brandsSeen = [...new Set(CUST.map(c => c.brand))];
+  if ($("#cBrand").options.length === 1) $("#cBrand").append(...brandsSeen.map(b => el("option", { value: b }, b)));
+  renderCustomers();
+}
+function renderCustomers() {
+  const q = $("#cq").value.trim().toLowerCase();
+  const rows = CUST.filter(c => ($("#cInternal").checked || !c.is_internal) && (!$("#cStatus").value || c.status === $("#cStatus").value) && (!$("#cBrand").value || c.brand === $("#cBrand").value)
+    && (!$("#cVetOnly").checked || c.needs_vetting) && (!q || [c.name, c.owner_email, c.id].some(x => (x || "").toLowerCase().includes(q))));
+  $("#custCount").textContent = `${rows.length} shown`;
+  $("#custTable").replaceChildren(table([
+    { h: "Customer", f: r => el("div", {}, el("b", {}, r.name), r.is_internal ? el("span", { class: "tag neutral", style: "margin-left:6px" }, "internal") : "", el("div", { class: "fine" }, r.owner_email || "")) },
+    { h: "Product", f: r => r.brand_name }, { h: "Plan", f: r => (PLANS.find(p => p.id === r.plan) || {}).name || r.plan },
+    { h: "Status", f: r => el("span", {}, statusTag(r.status), r.needs_vetting ? el("span", { class: "tag warn", style: "margin-left:4px" }, "needs vetting") : "") },
+    { h: "Trial ends", f: r => r.status === "trialing" ? day(r.trial_ends_at) : "" }, { h: "People", k: "users", n: 1 },
+    { h: "Rows this month", f: r => fmt(r.export_rows), n: 1 }, { h: "Last sign-in", f: r => when(r.last_login) }, { h: "Joined", f: r => day(r.created_at) }], rows, openCustomer));
+}
+function closeDrawer() { $("#drawer").classList.add("hidden"); $("#shade").classList.add("hidden"); }
+$("#shade").addEventListener("click", closeDrawer);
+async function openCustomer(c) {
+  const d = await api("/v1/admin/customers/" + encodeURIComponent(c.id)), o = d.org, a = d.allowance;
+  const plan = el("select", { class: "i" }, PLANS.map(p => el("option", { value: p.id, selected: p.id === o.plan }, p.name)));
+  const status = el("select", { class: "i" }, ["trialing", "active", "past_due", "canceled", "unpaid"].map(s => el("option", { value: s, selected: s === o.status }, nice(s))));
+  const out = el("div");
+  const save = async (bodyObj, note) => { try { await api("/v1/admin/orgs/" + o.id, { method: "PATCH", body: JSON.stringify(bodyObj) }); out.replaceChildren(el("div", { class: "msg ok" }, note)); loadCustomers(); }
+    catch (err) { out.replaceChildren(el("div", { class: "msg err" }, err.message)); } };
+  const extend = async n => { try { const r = await api(`/v1/admin/orgs/${o.id}/extend-trial`, { method: "POST", body: JSON.stringify({ days: n }) });
+    out.replaceChildren(el("div", { class: "msg ok" }, `Trial now ends ${r.trial_ends_at}.`)); loadCustomers(); } catch (err) { out.replaceChildren(el("div", { class: "msg err" }, err.message)); } };
+  const reset = async u => {
+    if (!confirm(`Reset the password for ${u.email}? Their current password stops working straight away.`)) return;
+    try { const r = await api(`/v1/admin/users/${u.id}/reset-password`, { method: "POST" });
+      out.replaceChildren(el("div", { class: "msg warn" }, el("div", {}, `Temporary password for ${r.email} — shown once:`), el("div", { class: "secret" }, r.temporary_password), el("div", { class: "fine" }, r.message)));
+    } catch (err) { out.replaceChildren(el("div", { class: "msg err" }, err.message)); } };
+  $("#drawer").replaceChildren(
+    el("div", { class: "head" }, el("h2", {}, o.name), el("span", { class: "sp" }), el("button", { class: "btn ghost sm", onclick: closeDrawer }, "Close")),
+    el("dl", { class: "kv" }, ...[["ID", el("span", { class: "mono" }, o.id)], ["Product", o.brand], ["Plan", `${o.plan} · ${o.billing_cycle}`], ["Status", statusTag(o.status)],
+      ["Trial ends", day(o.trial_ends_at)], ["Data level", ["", "Simple", "Standard", "Advanced", "Full record"][d.entitlements.level]], ["Vetted", o.vetted ? "Yes" : "No"], ["Regions", o.regions.join(", ") || "—"],
+      ["Watchlist", `${fmt(d.watchlist_items)} companies`], ["Alert rules", d.rules], ["Channels", d.channels.map(c => c.kind).join(", ") || "—"],
+      ["Exports", `${fmt(a.used_month)} of ${a.rows_month == null ? "unlimited" : fmt(a.rows_month)} rows this month`], ["Stripe customer", o.stripe_customer_id || "not linked"],
+      ["Joined", day(o.created_at)]].flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)])),
+    el("div", { class: "actions" }, el("b", {}, "Plan"), plan, el("b", {}, "Status"), status,
+      el("button", { class: "btn sm", onclick: () => save({ plan: plan.value, status: status.value }, "Plan and status saved.") }, "Save")),
+    el("div", { class: "actions" }, o.vetted ? el("button", { class: "btn danger sm", onclick: () => save({ vetted: false }, "Vetting removed.").then(() => openCustomer(c)) }, "Remove vetting")
+      : el("button", { class: "btn sm", onclick: () => save({ vetted: true }, "Customer vetted. They can now see restricted data.").then(() => openCustomer(c)) }, "Mark as vetted"),
+      el("span", { class: "fine" }, "Trial:"), el("button", { class: "btn ghost sm", onclick: () => extend(7) }, "+7 days"), el("button", { class: "btn ghost sm", onclick: () => extend(14) }, "+14 days")),
+    out,
+    el("h3", { style: "margin:14px 0 8px" }, "People"),
+    el("div", { class: "tablewrap" }, table([{ h: "Name", k: "name" }, { h: "Email", k: "email" }, { h: "Role", k: "role" }, { h: "Last sign-in", f: r => when(r.last_login) },
+      { h: "", f: r => r.role === "staff" ? "" : el("button", { class: "btn ghost sm", onclick: e => { e.stopPropagation(); reset(r); } }, "Reset password") }], d.users)),
+    el("h3", { style: "margin:16px 0 8px" }, "Usage by month"),
+    el("div", { class: "tablewrap" }, table([{ h: "Month", k: "month" }, { h: "Downloads", k: "exports", n: 1 }, { h: "Rows", f: r => fmt(r.export_rows), n: 1 }, { h: "AI briefs", k: "briefs", n: 1 }], d.usage)),
+    el("h3", { style: "margin:16px 0 8px" }, "Recent activity"),
+    el("div", { class: "tablewrap" }, table([{ h: "When", f: r => when(r.at) }, { h: "Action", f: r => nice(r.action) },
+      { h: "Detail", f: r => el("span", { class: "fine" }, r.detail.rows != null ? `${fmt(r.detail.rows)} rows` : Object.keys(r.detail).slice(0, 3).join(", ")) }], d.activity)));
+  $("#drawer").classList.remove("hidden"); $("#shade").classList.remove("hidden");
+}
+
+/* ---------- data ---------- */
+let dataTimer;
+["#dq", "#dType", "#dBrand", "#dStatus", "#dScore", "#dSort"].forEach(s => $(s).addEventListener(s === "#dq" ? "input" : "change", () => { clearTimeout(dataTimer); dataTimer = setTimeout(loadData, 300); }));
+async function loadData() {
+  const p = new URLSearchParams(); [["q", "#dq"], ["type", "#dType"], ["brand", "#dBrand"], ["status", "#dStatus"], ["min_score", "#dScore"], ["sort", "#dSort"]].forEach(([k, s]) => $(s).value && p.set(k, $(s).value.trim()));
+  p.set("limit", "300");
+  const d = await api("/v1/admin/events?" + p);
+  if ($("#dType").options.length === 1) { $("#dType").append(...d.types.map(t => el("option", { value: t }, nice(t)))); $("#dBrand").append(...d.brands.map(b => el("option", { value: b }, b))); }
+  $("#dataTable").replaceChildren(table([{ h: "Published", f: r => day(r.published_at) }, { h: "Type", f: r => nice(r.event_type) }, { h: "Company", f: r => el("div", {}, r.company_name || "", el("div", { class: "fine mono" }, r.company_number || "")) },
+    { h: "Region", k: "region" }, { h: "Score", f: r => r.risk_score ?? "", n: 1 }, { h: "Products", f: r => el("span", { class: "fine" }, (r.brands || "").split(",").join(", ")) },
+    { h: "Status", f: r => el("span", { class: "tag " + (r.status === "processed" ? "good" : "neutral") }, r.status) },
+    { h: "Flags", f: r => [r.personal_data ? el("span", { class: "tag warn" }, "personal") : "", r.restricted_until && r.restricted_until > new Date().toISOString().slice(0, 10) ? el("span", { class: "tag warn" }, "cooling-off") : ""] },
+    { h: "Source", k: "source" }], d.events));
+}
+
+/* ---------- review ---------- */
+async function loadReview() {
+  const [r, s] = await Promise.all([api("/v1/admin/risk-factors?needs_review=1"), api("/v1/admin/suppressions")]);
+  badge("#cRev", r.risks.length);
+  $("#risks").replaceChildren(r.risks.length ? el("div", {}, r.risks.map(f => {
+    const fact = el("textarea", { class: "i", rows: 2, style: "width:100%;margin:6px 0" }); fact.value = f.fact || "";
+    return el("div", { style: "border-top:1px solid var(--line);padding:10px 0" }, el("b", {}, f.title), el("span", { class: "fine" }, `  ·  ${f.brand}`),
+      el("div", { class: "fine" }, f.source_url ? el("a", { href: f.source_url, target: "_blank", rel: "noopener noreferrer" }, "Open source page ↗") : "No source link"), fact,
+      el("button", { class: "btn sm", onclick: async () => { await api("/v1/admin/risk-factors/" + encodeURIComponent(f.id), { method: "PATCH", body: JSON.stringify({ fact: fact.value }) }); loadReview(); } }, "Save and mark reviewed"));
+  })) : el("div", { class: "msg ok" }, "Nothing to review. Every fact matches its source."));
+  $("#supps").replaceChildren(table([{ h: "Kind", f: x => nice(x.kind) }, { h: "Value", k: "value" }, { h: "Reason", k: "reason" }, { h: "Added", f: x => when(x.created_at) }], s.suppressions));
+}
+$("#sAdd").addEventListener("click", async () => {
+  try { await api("/v1/admin/suppressions", { method: "POST", body: JSON.stringify({ kind: $("#sKind").value, value: $("#sVal").value, reason: $("#sWhy").value || "staff" }) });
+    $("#sVal").value = $("#sWhy").value = ""; msg("#sMsg", "Suppressed everywhere.", "ok"); loadReview(); } catch (err) { msg("#sMsg", err.message); }
+});
+
+/* ---------- jobs ---------- */
+async function loadJobs() {
+  const [j, o] = await Promise.all([api("/v1/admin/jobs"), api("/v1/admin/overview")]);
+  badge("#cJobs", j.jobs.filter(x => x.status === "error" || x.stale).length);
+  const every = s => s >= 86400 ? `${Math.round(s / 86400)} day(s)` : s >= 3600 ? `${Math.round(s / 3600)} hour(s)` : s >= 60 ? `${Math.round(s / 60)} min` : `${s} sec`;
+  $("#jobTable").replaceChildren(table([{ h: "Job", f: r => el("b", {}, nice(r.job)) }, { h: "Runs every", f: r => every(r.every_seconds) }, { h: "Status", f: jobTag },
+    { h: "Last run", f: r => when(r.last_run) }, { h: "Last result", f: r => el("span", { class: "fine", style: "word-break:break-word" }, r.result) },
+    { h: "", f: r => el("button", { class: "btn ghost sm", onclick: async e => { const b = e.target; b.disabled = true; b.textContent = "Running…";
+        try { const x = await api("/v1/admin/run/" + r.job, { method: "POST" }); msg("#jobMsg", `${nice(r.job)}: ${x.result}`, "ok"); } catch (err) { msg("#jobMsg", `${nice(r.job)}: ${err.message}`); }
+        b.disabled = false; b.textContent = "Run now"; } }, "Run now") }], j.jobs));
+  $("#streams").replaceChildren(table([{ h: "Key", f: r => el("span", { class: "mono" }, r.key) }, { h: "Value", f: r => el("span", { class: "fine", style: "word-break:break-all" }, String(r.value).slice(0, 160)) }, { h: "Updated", f: r => when(r.updated_at) }], o.streams));
+}
+
+/* ---------- audit ---------- */
+$("#aAction").addEventListener("change", loadAudit);
+async function loadAudit() {
+  const a = $("#aAction").value; const d = await api("/v1/admin/audit" + (a ? "?action=" + encodeURIComponent(a) : ""));
+  if ($("#aAction").options.length === 1) $("#aAction").append(...d.actions.map(x => el("option", { value: x }, nice(x))));
+  $("#auditTable").replaceChildren(table([{ h: "When", f: r => when(r.at) }, { h: "Who", f: r => el("span", { class: "mono fine" }, r.actor) }, { h: "Action", f: r => nice(r.action) },
+    { h: "Detail", f: r => el("span", { class: "fine", style: "word-break:break-word" }, JSON.stringify(r.detail).slice(0, 220)) }], d.audit));
+}
+
+/* ---------- boot ---------- */
+(async () => { if (TOKEN) { try { await start(); return; } catch (e) { signOut(); } } $("#login").classList.remove("hidden"); })();
+</script>
+</body>
+</html>

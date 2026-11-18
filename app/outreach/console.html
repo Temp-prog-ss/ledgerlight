@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Outreach · Ledgerlight</title>
+<style>
+:root{--paper:#F5F2EA;--card:#fff;--ink:#14201B;--ink2:#3B4A43;--mute:#6E7A73;--line:#DCD6C8;--green:#0F4D3A;--amber:#E0A526;--red:#B5432F}
+*{box-sizing:border-box}body{margin:0;font:14.5px/1.5 system-ui,-apple-system,Segoe UI,sans-serif;background:var(--paper);color:var(--ink)}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;background:var(--ink);color:#fff;position:sticky;top:0;z-index:5}
+header b{font-size:17px}header nav{display:flex;gap:4px;flex:1}header nav button{background:none;border:0;color:#C9D3CD;padding:8px 12px;border-radius:8px;cursor:pointer;font:inherit}
+header nav button.on{background:rgba(255,255,255,.12);color:#fff}
+main{padding:20px;max-width:1500px;margin:0 auto}.hide{display:none!important}
+.btn{background:var(--green);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:600 14px system-ui;cursor:pointer}.btn.g{background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}.btn.r{background:var(--red)}
+input,select,textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;width:100%}
+textarea{min-height:120px}label{display:block;font-size:12px;color:var(--mute);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.05em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}.stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.stat .n{font-size:22px;font-weight:700}.stat .l{font-size:12px;color:var(--mute)}
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:250px;gap:12px;overflow-x:auto;padding-bottom:10px}
+.col{background:#EDE8DC;border-radius:12px;padding:10px;min-height:300px}.col h4{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink2);display:flex;justify-content:space-between}
+.lead{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 10px;margin-bottom:8px;cursor:pointer;font-size:13px}.lead:hover{border-color:var(--ink2)}
+.lead b{display:block;font-size:13.5px}.lead small{color:var(--mute)}.pill{font-size:11px;padding:2px 7px;border-radius:99px;background:#EDE8DC;color:var(--ink2)}
+.pill.r{background:#F6DDD6;color:var(--red)}.pill.g{background:#DDEBE2;color:var(--green)}
+table{width:100%;border-collapse:collapse;background:#fff}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-size:13.5px}th{background:#EDE8DC;font-size:12px}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#fff;box-shadow:-20px 0 50px rgba(0,0,0,.2);padding:22px;overflow:auto;transform:translateX(100%);transition:.25s;z-index:10}.drawer.on{transform:none}
+pre{white-space:pre-wrap;background:#F7F5EF;border:1px solid var(--line);border-radius:8px;padding:12px;font:13px/1.5 ui-monospace,monospace}
+.msg{padding:10px 12px;border-radius:8px;margin:10px 0;background:#DDEBE2}.msg.err{background:#F6DDD6}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.muted{color:var(--mute)}
+.login{max-width:380px;margin:80px auto}
+@media(max-width:900px){.g2,.g3,.g4{grid-template-columns:1fr}.stats{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><b>Outreach</b><nav id="nav" class="hide"><button data-v="pipeline" class="on">Pipeline</button><button data-v="import">Import leads</button><button data-v="campaigns">Campaigns</button><button data-v="mailboxes">Mailboxes</button></nav><span id="who" class="muted"></span></header>
+<main>
+  <div id="v-login" class="login card"><h2 style="margin-top:0">Staff sign-in</h2>
+    <label>Email</label><input id="le" type="email"><label>Password</label><input id="lp" type="password">
+    <p><button class="btn" onclick="login()">Sign in</button></p><div id="lmsg"></div></div>
+
+  <div id="app" class="hide">
+    <div class="stats" id="stats"></div>
+
+    <section id="v-pipeline">
+      <div class="row" style="margin-bottom:12px"><input id="q" placeholder="Search name, company or email" style="max-width:320px" oninput="debounce(loadLeads)">
+        <select id="fb" style="max-width:200px" onchange="loadLeads()"><option value="">All brands</option></select>
+        <button class="btn g" onclick="dl('/v1/outreach/leads.csv','outreach_pipeline.csv')">Export pipeline CSV</button></div>
+      <div class="board" id="board"></div>
+    </section>
+
+    <section id="v-import" class="hide"><div class="grid g2">
+      <div class="card"><h3 style="margin-top:0">Import leads</h3>
+        <p class="muted">Paste or upload a CSV. Columns like the sheet in the video work: <b>Name, Position, Email, Website, Date Found</b> (plus Company and Company Number if you have them).</p>
+        <label>Product these leads are for</label><select id="ib"></select>
+        <label>CSV file</label><input type="file" id="if" accept=".csv,text/csv">
+        <label>…or paste CSV</label><textarea id="it" placeholder="Name,Position,Email,Website,Date Found"></textarea>
+        <p><button class="btn" onclick="importLeads()">Import</button></p><div id="imsg"></div></div>
+      <div class="card"><h3 style="margin-top:0">Find prospects</h3>
+        <p class="muted">Companies in our database that look like buyers of a product. There are no emails here: research each one, fill in Name, Position and Email, then import the file.</p>
+        <label>Product</label><select id="pb"></select><label>Region (optional)</label><select id="pr"><option value="">All regions</option></select>
+        <p><button class="btn g" onclick="dl('/v1/outreach/prospects.csv?brand='+pb.value+(pr.value?'&region='+encodeURIComponent(pr.value):''),pb.value+'_prospects.csv')">Download prospects CSV</button></p>
+        <h4>Who gets blocked automatically</h4><ul class="muted"><li>Personal mailboxes (Gmail, Hotmail…): the law requires consent for these</li><li>Sole traders and partnerships, where known</li><li>Anyone who unsubscribed, bounced or objected</li><li>Dissolved or insolvent companies</li></ul></div>
+    </div></section>
+
+    <section id="v-campaigns" class="hide"><div class="grid g2">
+      <div><div class="card"><h3 style="margin-top:0">New campaign</h3>
+        <label>Name</label><input id="cn" placeholder="SiteSentinel · North West subcontractors">
+        <label>Product</label><select id="cb"></select>
+        <div class="grid g3"><div><label>From hour</label><input id="cw1" type="number" value="9"></div><div><label>To hour</label><input id="cw2" type="number" value="17"></div><div><label>Days</label><select id="cd"><option value="[0,1,2,3,4]">Mon–Fri</option><option value="[1,2,3]">Tue–Thu</option></select></div></div>
+        <p class="muted">Starts with a 3-step sequence written for the product. You can edit it after creating.</p>
+        <p><button class="btn" onclick="createCampaign()">Create campaign</button></p><div id="cmsg"></div></div>
+        <div id="clist" style="margin-top:14px"></div></div>
+      <div class="card" id="cdetail"><p class="muted">Select a campaign to edit its emails, preview them, add leads and start sending.</p></div>
+    </div></section>
+
+    <section id="v-mailboxes" class="hide"><div class="grid g2">
+      <div class="card"><h3 style="margin-top:0">Add a sending mailbox</h3>
+        <p class="muted">Use your Google Workspace (or other) mailbox. Passwords never go in here: put an <b>app password</b> in the server's <code>.env</code> under the name you choose below.</p>
+        <div class="row"><button class="btn g" onclick="gmail()">Fill Gmail / Workspace settings</button></div>
+        <div class="grid g2"><div><label>Email</label><input id="me"></div><div><label>From name</label><input id="mn" placeholder="Sam from SiteSentinel"></div>
+        <div><label>SMTP host</label><input id="mh"></div><div><label>SMTP port</label><input id="mp" value="587"></div>
+        <div><label>IMAP host (for replies)</label><input id="mih"></div><div><label>Password env name</label><input id="mpe" placeholder="OUTREACH_PW_SAM"></div>
+        <div><label>Daily cap</label><input id="mc" type="number" value="40"></div><div><label>Warm-up: start / +per day</label><div class="row"><input id="mws" type="number" value="10" style="width:45%"><input id="mwp" type="number" value="3" style="width:45%"></div></div></div>
+        <p><button class="btn" onclick="addMailbox()">Add mailbox</button></p><div id="mmsg"></div></div>
+      <div class="card"><h3 style="margin-top:0">Mailboxes</h3><div id="mlist"></div>
+        <h4>Good practice</h4><ul class="muted"><li>Send from a separate domain (e.g. getsitesentinel.co.uk), never your main one</li><li>Set up SPF, DKIM and DMARC for that domain before sending</li><li>Keep 30–50 emails a day per mailbox. Add mailboxes to grow, don't raise caps</li><li>Watch the bounce rate: pause if it goes over 3%</li></ul></div>
+    </div></section>
+  </div>
+</main>
+<aside class="drawer" id="drawer"></aside>
+<script>
+let T=null;try{T=sessionStorage.getItem('ll_staff')}catch(e){}
+const $=s=>document.querySelector(s), esc=v=>String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BRANDS=['ledgerlight','sitesentinel','sponsorwatch','estatesignal','distressradar','tenantguard','talentrelease','creditpulse','filingpulse'];
+const REGIONS=['London','South East','East of England','South West','West Midlands','East Midlands','Yorkshire and The Humber','North West','North East','Wales','Scotland','Northern Ireland'];
+let STAGES=[];
+async function api(p,o={}){const r=await fetch(p,Object.assign({},o,{headers:Object.assign({'Content-Type':'application/json',Authorization:'Bearer '+T},o.headers||{})}));
+  const t=r.headers.get('content-type')||'';const d=t.includes('json')?await r.json():await r.text();if(r.status===401){logout();throw new Error('Please sign in')}
+  if(!r.ok)throw new Error(d.error||('Error '+r.status));return d}
+function say(el,m,bad){$(el).innerHTML=`<div class="msg ${bad?'err':''}">${esc(m)}</div>`}
+async function login(){try{const r=await fetch('/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:$('#le').value,password:$('#lp').value})});
+  const d=await r.json();if(!r.ok)throw new Error(d.error);T=d.token;try{sessionStorage.setItem('ll_staff',T)}catch(e){};start()}catch(e){say('#lmsg',e.message,1)}}
+function logout(){T=null;try{sessionStorage.removeItem('ll_staff')}catch(e){};$('#app').classList.add('hide');$('#nav').classList.add('hide');$('#v-login').classList.remove('hide')}
+async function start(){try{const me=await api('/v1/me');if(me.user.role!=='staff'){say('#lmsg','This account is not staff. Run scripts.make_staff on the server.',1);return}
+  $('#who').textContent=me.user.email;$('#v-login').classList.add('hide');$('#app').classList.remove('hide');$('#nav').classList.remove('hide');
+  ['#fb','#ib','#pb','#cb'].forEach((s,i)=>$(s).innerHTML+=BRANDS.filter(b=>i!==2||b!=='ledgerlight').map(b=>`<option>${b}</option>`).join(''));
+  $('#pr').innerHTML+=REGIONS.map(r=>`<option>${r}</option>`).join('');loadAll()}catch(e){logout()}}
+function loadAll(){loadStats();loadLeads();loadCampaigns();loadMailboxes()}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#nav button').forEach(x=>x.classList.toggle('on',x===b));['pipeline','import','campaigns','mailboxes'].forEach(v=>$('#v-'+v).classList.toggle('hide',v!==b.dataset.v))});
+let tmr;function debounce(f){clearTimeout(tmr);tmr=setTimeout(f,300)}
+async function loadStats(){const s=await api('/v1/outreach/stats');$('#stats').innerHTML=[['Emails sent',s.emails_sent],['Leads contacted',s.leads_contacted],['Replies',s.replies],['Reply rate',s.reply_rate+'%'],['Bounce rate',s.bounce_rate+'%'],['Unsubscribes',s.unsubscribes]].map(x=>`<div class="stat"><div class="n">${x[1]}</div><div class="l">${x[0]}</div></div>`).join('')}
+async function loadLeads(){const d=await api('/v1/outreach/leads?'+new URLSearchParams({q:$('#q').value,brand:$('#fb').value}));STAGES=d.stages;
+  $('#board').innerHTML=STAGES.map(s=>{const ls=d.leads.filter(l=>l.stage===s);return `<div class="col"><h4>${s.replace('_',' ')}<span>${ls.length}</span></h4>${ls.slice(0,200).map(l=>`<div class="lead" onclick="openLead('${l.id}')"><b>${esc((l.first_name||'')+' '+(l.last_name||''))||esc(l.email)}</b><small>${esc(l.position||'')}${l.company?' · '+esc(l.company):''}</small><br><small>${esc(l.email)}</small>${l.block_reason?`<br><span class="pill r">${esc(l.block_reason)}</span>`:''}${l.brand?` <span class="pill">${l.brand}</span>`:''}</div>`).join('')}</div>`}).join('')}
+async function openLead(id){const d=await api('/v1/outreach/leads/'+id),l=d.lead;$('#drawer').innerHTML=`<button class="btn g" style="float:right" onclick="$('#drawer').classList.remove('on')">Close</button>
+  <h2 style="margin-top:0">${esc((l.first_name||'')+' '+(l.last_name||''))}</h2><p>${esc(l.position||'')} ${l.company?'at <b>'+esc(l.company)+'</b>':''}<br>${esc(l.email)} ${l.website?'· '+esc(l.website):''}</p>
+  ${l.block_reason?`<div class="msg err">Blocked: ${esc(l.block_reason)}</div>`:''}
+  <label>Stage</label><div class="row"><select id="ds">${STAGES.map(s=>`<option ${s===l.stage?'selected':''}>${s}</option>`).join('')}</select><button class="btn" onclick="setStage('${l.id}')">Save</button></div>
+  <label>Notes</label><textarea id="dn">${esc(l.notes||'')}</textarea><button class="btn g" onclick="saveNotes('${l.id}')">Save notes</button>
+  <h3>Emails</h3>${d.messages.map(m=>`<p>Step ${m.step_no}: ${esc(m.subject)} <span class="pill ${m.status==='sent'?'g':'r'}">${m.status}</span><br><small class="muted">${esc(m.sent_at||'')} ${esc(m.error||'')}</small></p>`).join('')||'<p class="muted">None yet</p>'}
+  <h3>Activity</h3>${d.activity.map(a=>`<p><small class="muted">${esc(a.at)}</small><br>${esc(a.kind)}: ${esc(a.detail)}</p>`).join('')||'<p class="muted">None yet</p>'}`;$('#drawer').classList.add('on')}
+async function setStage(id){try{await api('/v1/outreach/leads/'+id,{method:'PATCH',body:JSON.stringify({stage:$('#ds').value})});openLead(id);loadLeads();loadStats()}catch(e){alertMsg(e)}}
+async function saveNotes(id){await api('/v1/outreach/leads/'+id,{method:'PATCH',body:JSON.stringify({notes:$('#dn').value})})}
+function alertMsg(e){$('#drawer').insertAdjacentHTML('afterbegin',`<div class="msg err">${esc(e.message)}</div>`)}
+async function importLeads(){try{let text=$('#it').value;const f=$('#if').files[0];if(f)text=await f.text();if(!text.trim())throw new Error('Choose a file or paste CSV');
+  const d=await api('/v1/outreach/leads/import?brand='+$('#ib').value,{method:'POST',body:text,headers:{'Content-Type':'text/csv'}});
+  say('#imsg',`Added ${d.added}, updated ${d.updated}, invalid ${d.invalid}, blocked ${d.blocked}.`+(d.blocked_examples.length?' Blocked: '+d.blocked_examples.slice(0,5).map(b=>b.email+' ('+b.reason+')').join('; '):''));loadLeads();loadStats()}catch(e){say('#imsg',e.message,1)}}
+async function dl(path,name){const r=await fetch(path,{headers:{Authorization:'Bearer '+T}});if(!r.ok)return alert('Download failed');const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(await r.blob()),download:name});document.body.appendChild(a);a.click();a.remove()}
+async function loadCampaigns(){const d=await api('/v1/outreach/campaigns');$('#clist').innerHTML=d.campaigns.map(c=>`<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openCampaign('${c.id}')"><b>${esc(c.name)}</b> <span class="pill ${c.status==='active'?'g':''}">${c.status}</span><br><small class="muted">${c.brand} · ${Object.entries(c.counts).map(([k,v])=>v+' '+k).join(', ')||'no leads yet'}</small></div>`).join('')}
+async function createCampaign(){try{const c=await api('/v1/outreach/campaigns',{method:'POST',body:JSON.stringify({name:$('#cn').value,brand:$('#cb').value,window_start:+$('#cw1').value,window_end:+$('#cw2').value,weekdays:JSON.parse($('#cd').value)})});loadCampaigns();openCampaign(c.id)}catch(e){say('#cmsg',e.message,1)}}
+async function openCampaign(id){const c=await api('/v1/outreach/campaigns/'+id);$('#cdetail').innerHTML=`<h3 style="margin-top:0">${esc(c.name)} <span class="pill ${c.status==='active'?'g':''}">${c.status}</span></h3>
+  <p class="muted">${c.brand} · sends ${c.window_start}:00–${c.window_end}:00 · ${Object.entries(c.counts).map(([k,v])=>v+' '+k).join(', ')||'no leads yet'}</p>
+  <div class="row"><button class="btn g" onclick="enroll('${id}')">Add all new leads for ${c.brand}</button><button class="btn g" onclick="preview('${id}')">Preview</button>
+  ${c.status==='active'?`<button class="btn r" onclick="setStatus('${id}','paused')">Pause</button>`:`<button class="btn" onclick="setStatus('${id}','active')">Start sending</button>`}</div><div id="cdm"></div>
+  <h4>Emails in this sequence</h4><p class="muted">Merge fields: {{first_name}}, {{company}}, {{position}}, {{website}}, {{sender_name}}, {{brand_url}}. Fallbacks: {{first_name|there}}. Leave a follow-up subject blank to reply in the same thread.</p>
+  ${c.steps.map(s=>`<div class="card" style="margin-bottom:10px"><div class="row"><b>Step ${s.step_no}</b><span class="muted">send after</span><input class="sd" type="number" value="${s.delay_days}" style="width:70px"><span class="muted">days</span></div>
+  <label>Subject</label><input class="ss" value="${esc(s.subject||'')}"><label>Body</label><textarea class="sb" style="min-height:180px">${esc(s.body)}</textarea></div>`).join('')}
+  <button class="btn" onclick="saveSteps('${id}')">Save emails</button>`}
+async function saveSteps(id){const sd=[...document.querySelectorAll('.sd')],ss=[...document.querySelectorAll('.ss')],sb=[...document.querySelectorAll('.sb')];
+  try{await api(`/v1/outreach/campaigns/${id}/steps`,{method:'PUT',body:JSON.stringify({steps:sb.map((b,i)=>({step_no:i+1,delay_days:+sd[i].value,subject:ss[i].value||null,body:b.value}))})});say('#cdm','Saved.')}catch(e){say('#cdm',e.message,1)}}
+async function enroll(id){const d=await api(`/v1/outreach/campaigns/${id}/enroll`,{method:'POST',body:'{}'});say('#cdm',`Added ${d.added} leads (${d.skipped} skipped: blocked, closed or already in a sequence).`);loadCampaigns()}
+async function setStatus(id,s){try{await api(`/v1/outreach/campaigns/${id}/status`,{method:'POST',body:JSON.stringify({status:s})});openCampaign(id);loadCampaigns()}catch(e){say('#cdm',e.message,1)}}
+async function preview(id){const d=await api(`/v1/outreach/campaigns/${id}/preview`,{method:'POST',body:'{}'});$('#drawer').innerHTML=`<button class="btn g" style="float:right" onclick="$('#drawer').classList.remove('on')">Close</button><h2 style="margin-top:0">Preview for ${esc(d.lead.email)}</h2>`+
+  d.steps.map(s=>`<h4>Step ${s.step_no} · day ${s.delay_days}</h4>${s.missing.length?`<div class="msg err">Missing for this lead: ${s.missing.join(', ')}</div>`:''}<pre><b>Subject:</b> ${esc(s.subject)}\n\n${esc(s.body)}</pre>`).join('');$('#drawer').classList.add('on')}
+function gmail(){$('#mh').value='smtp.gmail.com';$('#mp').value='587';$('#mih').value='imap.gmail.com'}
+async function addMailbox(){try{await api('/v1/outreach/mailboxes',{method:'POST',body:JSON.stringify({email:$('#me').value,from_name:$('#mn').value,smtp_host:$('#mh').value,smtp_port:+$('#mp').value,smtp_user:$('#me').value,imap_host:$('#mih').value,password_env:$('#mpe').value,daily_cap:+$('#mc').value,warmup_start:+$('#mws').value,warmup_step:+$('#mwp').value})});say('#mmsg','Mailbox added. Now put its app password in .env as '+$('#mpe').value+' and restart.');loadMailboxes()}catch(e){say('#mmsg',e.message,1)}}
+async function loadMailboxes(){const d=await api('/v1/outreach/mailboxes');$('#mlist').innerHTML=d.mailboxes.length?`<table><tr><th>Mailbox</th><th>Today</th><th>Password</th></tr>${d.mailboxes.map(m=>`<tr><td>${esc(m.email)}<br><small class="muted">${esc(m.from_name||'')}</small></td><td>${m.sent_today} / ${m.cap_today}</td><td>${m.password_set?'<span class="pill g">set</span>':'<span class="pill r">missing: '+esc(m.password_env||'')+'</span>'}</td></tr>`).join('')}</table>`:'<p class="muted">No mailboxes yet.</p>'}
+if(T)start();
+</script>
+</body>
+</html>

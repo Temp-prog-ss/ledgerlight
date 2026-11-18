@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · Ledgerlight</title>
+<style>
+:root{--accent:#0F4D3A;--accent-ink:#fff;--paper:#F6F5F0;--card:#fff;--ink:#16201C;--ink2:#4A5752;--muted:#7C8782;--line:#E3E1D8;--soft:#EEF2EF;--warn:#8A5A00;--warn-bg:#FFF6E0;--bad:#9B2C2C;--bad-bg:#FDECEC;--good:#1E6B45;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;--mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans)}
+button,input,select{font:inherit;color:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+.hidden{display:none!important}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn:disabled{opacity:.45;cursor:not-allowed}.btn.ghost{background:transparent;color:var(--accent)}.btn.sm{padding:5px 10px;font-size:13px}
+.btn.link{border:0;background:none;color:var(--accent);padding:0;text-decoration:underline;font-weight:500}
+label.f{display:block;font-size:13px;font-weight:600;color:var(--ink2);margin:0 0 12px}
+label.f input,label.f select{display:block;width:100%;margin-top:4px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:#fff;font-weight:400}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.msg{padding:10px 12px;border-radius:8px;font-size:14px;margin:10px 0}.msg.err{background:var(--bad-bg);color:var(--bad)}.msg.warn{background:var(--warn-bg);color:var(--warn)}.msg.ok{background:var(--soft);color:var(--good)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* auth */
+#auth{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.pitch{background:var(--accent);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between}
+.pitch h1{font-size:40px;line-height:1.1;max-width:14ch}.pitch p{opacity:.85;max-width:44ch}
+.pitch .mark{font-family:var(--serif);font-size:22px;font-weight:600}.pitch ul{padding:0;list-style:none;opacity:.9}.pitch li{margin:8px 0;padding-left:22px;position:relative}.pitch li:before{content:"";position:absolute;left:0;top:9px;width:10px;height:2px;background:#fff}
+.authcard{display:flex;align-items:center;justify-content:center;padding:40px}
+.authcard form{width:100%;max-width:400px}
+.tabs{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:10px;margin-bottom:22px}
+.tabs button{flex:1;border:0;background:none;padding:8px;border-radius:7px;cursor:pointer;font-weight:600;color:var(--ink2)}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fine{font-size:12.5px;color:var(--muted)}
+/* shell */
+header.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.topin{max-width:1240px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:20px}
+.brandname{font-family:var(--serif);font-weight:600;font-size:19px;color:var(--accent)}
+nav.main{display:flex;gap:2px}nav.main button{border:0;background:none;padding:8px 12px;border-radius:7px;cursor:pointer;color:var(--ink2);font-weight:600}
+nav.main button.on{background:var(--soft);color:var(--accent)}
+.sp{flex:1}.pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--soft);color:var(--accent);white-space:nowrap}
+main{max-width:1240px;margin:0 auto;padding:24px}
+.banner{margin-bottom:16px}
+.grid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:20px;align-items:start}.grid>*{min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{font-size:17px;margin-bottom:12px}.card+.card{margin-top:16px}
+.step{font:700 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.lvl{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;cursor:pointer;text-align:left}
+.lvl b{display:block;font-size:14px}.lvl span{font-size:12px;color:var(--muted)}
+.lvl.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--soft)}
+.lvl.locked{cursor:not-allowed;background:#FAFAF7;color:var(--muted)}.lvl.locked b:after{content:" 🔒";font-size:11px}
+.fieldgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:2px 14px;max-height:260px;overflow:auto;padding:6px 2px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.fld{display:flex;gap:7px;align-items:flex-start;font-size:13.5px;padding:4px 0}.fld.locked{color:var(--muted)}
+.fld small{display:block;color:var(--muted);font-size:11.5px;line-height:1.3}
+.lockt{font-size:10.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);padding:1px 6px;border-radius:99px;margin-left:4px;white-space:nowrap}
+.resulthead{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.big{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+.meter{height:6px;background:var(--soft);border-radius:4px;overflow:hidden;width:180px}.meter i{display:block;height:100%;background:var(--accent);border-radius:4px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:10px;max-height:560px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;background:#FAFAF7;text-align:left;font-weight:600;color:var(--ink2);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top;min-width:90px;max-width:340px}
+td.n{font-family:var(--mono);text-align:right}
+tr:hover td{background:#FBFBF8}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.kv{display:grid;grid-template-columns:180px 1fr;gap:6px 14px;font-size:14px}.kv dt{color:var(--muted)}.kv dd{margin:0}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.plan{border:1px solid var(--line);border-radius:12px;padding:16px}.plan.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.plan .price{font-family:var(--serif);font-size:26px;font-weight:600}
+@media (max-width:900px){#auth{grid-template-columns:1fr}.pitch{padding:32px}.grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:1fr}nav.main{overflow:auto}}
+</style>
+</head>
+<body>
+
+<!-- ============ SIGN IN / SIGN UP ============ -->
+<section id="auth" class="hidden">
+  <div class="pitch">
+    <div class="mark" id="pMark">Ledgerlight</div>
+    <div>
+      <h1 id="pHead">Company signals, ready to export.</h1>
+      <p id="pTag">Insolvency, distress and change events from Companies House, The Gazette and public registers — filtered to your trade.</p>
+      <ul><li>Build your own extract in minutes</li><li>Choose the detail level your plan includes</li><li>Download to CSV, open in Excel or your CRM</li></ul>
+    </div>
+    <div class="fine" style="color:#ffffffb0">14-day free trial with Team features. No card needed to start.</div>
+  </div>
+  <div class="authcard">
+    <form id="authForm" novalidate>
+      <div class="tabs" role="tablist"><button type="button" data-t="in" class="on">Sign in</button><button type="button" data-t="up">Start free trial</button></div>
+      <div id="upOnly" class="hidden">
+        <div class="row2"><label class="f">Your name<input name="name" autocomplete="name"></label><label class="f">Company<input name="org_name" autocomplete="organization"></label></div>
+        <label class="f">Product<select name="brand" id="brandSel"></select></label>
+        <label class="f">Plan after your trial<select name="plan" id="planSel"></select></label>
+        <label class="f hidden" id="regionWrap">Your region (Solo covers one)<select name="region" id="regionSel"></select></label>
+      </div>
+      <label class="f">Work email<input name="email" type="email" autocomplete="email" required></label>
+      <label class="f">Password<input name="password" type="password" autocomplete="current-password" required minlength="10"></label>
+      <div id="authMsg"></div>
+      <button class="btn" style="width:100%" id="authBtn">Sign in</button>
+      <p class="fine" id="authFine">Forgotten your password? Contact us and we'll reset it.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<div id="app" class="hidden">
+  <header class="top"><div class="topin">
+    <div class="brandname" id="bName">Ledgerlight</div>
+    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button></nav>
+    <div class="sp"></div>
+    <span class="pill" id="planPill"></span>
+    <span class="fine" id="who"></span>
+    <button class="btn ghost sm" id="logout">Sign out</button>
+  </div></header>
+  <main>
+    <div id="banner" class="banner"></div>
+
+    <!-- Extract -->
+    <section id="v-extract">
+      <div class="grid">
+        <div>
+          <div class="card">
+            <div class="step">Step 1</div><h3>Which records</h3>
+            <label class="f">Event type<select id="fType"></select></label>
+            <label class="f">Region<select id="fRegion"></select></label>
+            <div class="row2"><label class="f">From<input type="date" id="fSince"></label><label class="f">To<input type="date" id="fUntil"></label></div>
+            <label class="f">Company name or number<input id="fQ" placeholder="e.g. Harbourline or 01234567"></label>
+            <label class="f">Minimum risk score <span id="scoreLock"></span><input type="number" id="fScore" min="0" max="100" placeholder="0–100"></label>
+            <label class="check"><input type="checkbox" id="fWatch"> Only companies on my watchlist <span class="fine" id="watchN"></span></label>
+            <button class="btn link" id="resetF" type="button">Clear filters</button>
+          </div>
+          <div class="card">
+            <div class="step">This month</div>
+            <div id="allow"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="step">Step 2</div><h3>How much detail</h3>
+            <div class="levels" id="levels"></div>
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:6px"><b style="font-size:14px">Columns</b><span class="fine" id="colCount"></span><span class="sp"></span><button class="btn link" id="allF" type="button">Select all</button><button class="btn link" id="noneF" type="button">Clear</button></div>
+            <div class="fieldgrid" id="fields"></div>
+          </div>
+          <div class="card">
+            <div class="step">Step 3</div>
+            <div class="resulthead">
+              <div><div class="big mono" id="total">–</div><div class="fine" id="totalSub">matching records</div></div>
+              <span class="sp"></span>
+              <label class="fine">Rows to download <input type="number" id="maxRows" min="1" style="width:100px;padding:6px 8px;border:1px solid var(--line);border-radius:7px"></label>
+              <button class="btn" id="dl">Download CSV</button>
+            </div>
+            <div id="exMsg"></div>
+            <div class="tablewrap" id="preview"><div class="empty">Choose filters to preview your extract.</div></div>
+            <p class="fine">Preview shows the first 25 rows. Every download is logged against your account, and the data may only be used as set out in our terms.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Watchlist -->
+    <section id="v-watch" class="hidden">
+      <div class="grid">
+        <div>
+          <div class="card"><h3>Add a company</h3>
+            <label class="f">Company number<input id="wNum" placeholder="01234567"></label>
+            <label class="f">Your label (optional)<input id="wLabel" placeholder="e.g. Unit 4 tenant"></label>
+            <label class="f">Amount owed to you, £ (optional)<input id="wOwed" type="number" min="0"></label>
+            <button class="btn" id="wAdd">Add to watchlist</button><div id="wMsg"></div>
+          </div>
+          <div class="card"><h3>Upload a list</h3>
+            <p class="fine">CSV with a <b>company_number</b> column. Optional columns: label, amount_owed, credit_limit.</p>
+            <input type="file" id="wFile" accept=".csv,text/csv"><div id="wUpMsg"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="resulthead"><h3 style="margin:0">My watchlist</h3><span class="fine" id="wCount"></span><span class="sp"></span><button class="btn ghost sm" id="wExport">Download CSV</button></div>
+          <div class="tablewrap" id="wTable"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account -->
+    <section id="v-account" class="hidden">
+      <div class="card"><h3>Your plan</h3><dl class="kv" id="acct"></dl></div>
+      <div class="card"><h3>Change plan</h3><div class="plans" id="plans"></div><div id="billMsg"></div>
+        <label class="check" style="margin-top:10px"><input type="checkbox" id="annual"> Pay annually (2 months free)</label></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+        <div class="card"><h3>Change password</h3>
+          <label class="f">Current password<input type="password" id="pwCur" autocomplete="current-password"></label>
+          <label class="f">New password (10+ characters)<input type="password" id="pwNew" autocomplete="new-password"></label>
+          <button class="btn" id="pwBtn">Update password</button><div id="pwMsg"></div></div>
+        <div class="card"><h3>Team</h3><div id="team"></div>
+          <div id="addMember" class="hidden" style="margin-top:12px">
+            <div class="row2"><label class="f">Name<input id="mName"></label><label class="f">Email<input id="mEmail" type="email"></label></div>
+            <label class="f">Temporary password (10+ characters)<input id="mPw" type="password"></label>
+            <button class="btn sm" id="mBtn">Add person</button><div id="mMsg"></div></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const KEY = "ll_token";
+let TOKEN = null, ME = null, OPT = null, LEVEL = 1, CHOSEN = new Set(), mode = "in", BRANDS = [], PLANS = [];
+try { TOKEN = localStorage.getItem(KEY); } catch (e) {}
+const qs = new URLSearchParams(location.search);
+
+function el(tag, attrs, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (v == null || v === false) continue;
+    if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : v);
+  }
+  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k)));
+  return n;
+}
+const fmt = n => n == null ? "–" : Number(n).toLocaleString("en-GB");
+function msg(box, text, kind = "err") { const b = typeof box === "string" ? $(box) : box; b.replaceChildren(text ? el("div", { class: "msg " + kind }, text) : ""); }
+
+async function api(path, opts = {}) {
+  const headers = { "Content-Type": "application/json" };
+  if (TOKEN) headers.Authorization = "Bearer " + TOKEN;
+  const r = await fetch(path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+  if (r.status === 401 && TOKEN) { signOut(); throw new Error("Please sign in again"); }
+  if (opts.raw) { if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Request failed"); return r; }
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(data.error || "Something went wrong");
+  return data;
+}
+
+function applyBrand(b) {
+  if (!b) return;
+  document.documentElement.style.setProperty("--accent", b.accent || "#0F4D3A");
+  document.title = (TOKEN ? "Extract · " : "Sign in · ") + b.name;
+  $("#pMark").textContent = b.name; $("#bName").textContent = b.name;
+  if (b.tagline) $("#pTag").textContent = b.tagline;
+}
+
+/* ---------- auth ---------- */
+async function loadPublic() {
+  const [b, p] = await Promise.all([api("/v1/brands"), api("/v1/plans")]);
+  BRANDS = b.brands; PLANS = p.plans;
+  $("#brandSel").replaceChildren(...BRANDS.map(x => el("option", { value: x.id }, x.name + (x.vetted_only ? " (vetted firms only)" : ""))));
+  const want = qs.get("brand"); if (want && BRANDS.some(x => x.id === want)) $("#brandSel").value = want;
+  applyBrand(BRANDS.find(x => x.id === $("#brandSel").value));
+  $("#planSel").replaceChildren(...PLANS.filter(x => x.monthly_gbp).map(x => el("option", { value: x.id }, `${x.name} — £${x.monthly_gbp}/month · ${x.level_name} data`)));
+  $("#planSel").value = qs.get("plan") && PLANS.some(x => x.id === qs.get("plan")) ? qs.get("plan") : "team";
+  $("#regionSel").replaceChildren(...b.regions.map(r => el("option", { value: r }, r)));
+  syncPlan();
+}
+function syncPlan() { $("#regionWrap").classList.toggle("hidden", !(mode === "up" && $("#planSel").value === "solo")); }
+$("#planSel").addEventListener("change", syncPlan);
+$("#brandSel").addEventListener("change", () => applyBrand(BRANDS.find(x => x.id === $("#brandSel").value)));
+$$(".tabs button").forEach(b => b.addEventListener("click", () => {
+  mode = b.dataset.t; $$(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  $("#upOnly").classList.toggle("hidden", mode !== "up");
+  $("#authBtn").textContent = mode === "up" ? "Start my 14-day trial" : "Sign in";
+  $("[name=password]").autocomplete = mode === "up" ? "new-password" : "current-password";
+  $("#authFine").textContent = mode === "up" ? "By starting a trial you agree to our terms and acceptable-use policy." : "Forgotten your password? Contact us and we'll reset it.";
+  msg("#authMsg", ""); syncPlan();
+}));
+$("#authForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const f = new FormData(e.target), btn = $("#authBtn");
+  btn.disabled = true; msg("#authMsg", "");
+  try {
+    let res;
+    if (mode === "in") res = await api("/v1/auth/login", { method: "POST", body: JSON.stringify({ email: f.get("email"), password: f.get("password") }) });
+    else {
+      if ((f.get("password") || "").length < 10) throw new Error("Use at least 10 characters for your password");
+      res = await api("/v1/auth/signup", { method: "POST", body: JSON.stringify({ email: f.get("email"), password: f.get("password"), name: f.get("name"),
+        org_name: f.get("org_name"), brand: f.get("brand"), plan: f.get("plan"), regions: f.get("plan") === "solo" ? [f.get("region")] : [] }) });
+    }
+    TOKEN = res.token; try { localStorage.setItem(KEY, TOKEN); } catch (x) {}
+    await start();
+  } catch (err) { msg("#authMsg", err.message); } finally { btn.disabled = false; }
+});
+function signOut() { TOKEN = null; try { localStorage.removeItem(KEY); } catch (e) {} $("#app").classList.add("hidden"); $("#auth").classList.remove("hidden"); }
+$("#logout").addEventListener("click", signOut);
+
+/* ---------- shell ---------- */
+$$("nav.main button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
+function show(v) {
+  $$("nav.main button").forEach(x => x.classList.toggle("on", x.dataset.v === v));
+  ["extract", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  if (v === "watch") loadWatch(); if (v === "account") loadAccount();
+}
+
+async function start() {
+  ME = await api("/v1/me");
+  OPT = await api("/v1/extract/options");
+  applyBrand(OPT.brand);
+  $("#auth").classList.add("hidden"); $("#app").classList.remove("hidden");
+  $("#who").textContent = ME.user.email;
+  $("#planPill").textContent = OPT.status === "trialing" ? `Trial · ${OPT.plan.effective_name} features` : `${OPT.plan.name} · ${OPT.level_name}`;
+  const ban = $("#banner"); ban.replaceChildren();
+  if (OPT.status === "trialing") ban.append(el("div", { class: "msg ok" }, `Your free trial ends on ${new Date(OPT.trial_ends_at).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}. You're seeing Team features until then.`));
+  if (!OPT.active) ban.append(el("div", { class: "msg err" }, "Your subscription isn't active, so extraction is paused. Choose a plan under Account to carry on."));
+  if (OPT.brand.vetted_only && !OPT.vetted) ban.append(el("div", { class: "msg warn" }, "We check every firm before showing estate data. We'll email you once your account is approved, usually within one working day."));
+  buildFilters(); LEVEL = OPT.level; buildLevels(); selectAll(); refresh();
+  show("extract");
+}
+
+/* ---------- extract builder ---------- */
+function buildFilters() {
+  $("#fType").replaceChildren(el("option", { value: "" }, "All event types"), ...OPT.event_types.map(t => el("option", { value: t.id }, `${t.label} (${fmt(t.count)})`)));
+  const regs = OPT.region_cap ? OPT.org_regions.slice(0, OPT.region_cap) : OPT.regions;
+  $("#fRegion").replaceChildren(el("option", { value: "" }, OPT.region_cap ? (regs.length ? "My region" : "Watchlist only (no region set)") : "All UK regions"), ...regs.map(r => el("option", { value: r }, r)));
+  $("#fScore").disabled = !OPT.score_filter;
+  $("#scoreLock").replaceChildren(OPT.score_filter ? "" : el("span", { class: "lockt" }, "Pro plan"));
+  $("#watchN").textContent = `(${fmt(OPT.watchlist_count)} companies)`;
+}
+function buildLevels() {
+  $("#levels").replaceChildren(...OPT.levels.map(l => el("button", { type: "button", class: "lvl" + (l.level === LEVEL ? " on" : "") + (l.unlocked ? "" : " locked"),
+    title: l.unlocked ? "" : `Upgrade to ${l.plan_needed} for ${l.name} data`, onclick: () => { if (!l.unlocked) return msg("#exMsg", `${l.name} data comes with the ${l.plan_needed} plan. You can upgrade under Account.`, "warn"); LEVEL = l.level; buildLevels(); selectAll(); refresh(); } },
+    el("b", {}, l.name), el("span", {}, l.unlocked ? `${l.field_count} fields` : `${l.plan_needed} plan`))));
+  $("#fields").replaceChildren(...OPT.fields.map(f => {
+    const avail = f.level <= LEVEL;
+    const cb = el("input", { type: "checkbox", disabled: !avail, checked: avail && CHOSEN.has(f.key) });
+    cb.addEventListener("change", () => { cb.checked ? CHOSEN.add(f.key) : CHOSEN.delete(f.key); countCols(); refresh(); });
+    return el("label", { class: "fld" + (avail ? "" : " locked") }, cb, el("span", {}, f.label, avail ? "" : el("span", { class: "lockt" }, f.unlocked ? f.level_name : f.plan_needed), el("small", {}, f.description)));
+  }));
+  countCols();
+}
+function avail() { return OPT.fields.filter(f => f.level <= LEVEL).map(f => f.key); }
+function selectAll() { CHOSEN = new Set(avail()); buildFieldsChecks(); }
+function buildFieldsChecks() { $$("#fields input").forEach((cb, i) => { const f = OPT.fields[i]; cb.checked = f.level <= LEVEL && CHOSEN.has(f.key); }); countCols(); }
+function countCols() { $("#colCount").textContent = `${CHOSEN.size} of ${avail().length} chosen`; }
+$("#allF").addEventListener("click", () => { selectAll(); refresh(); });
+$("#noneF").addEventListener("click", () => { CHOSEN = new Set(["company_name"].filter(k => avail().includes(k))); buildFieldsChecks(); refresh(); });
+$("#resetF").addEventListener("click", () => { ["#fType", "#fRegion", "#fSince", "#fUntil", "#fQ", "#fScore"].forEach(s => $(s).value = ""); $("#fWatch").checked = false; refresh(); });
+["#fType", "#fRegion", "#fSince", "#fUntil", "#fScore", "#fWatch"].forEach(s => $(s).addEventListener("change", refresh));
+$("#fQ").addEventListener("input", () => { clearTimeout(window._q); window._q = setTimeout(refresh, 350); });
+
+function params() {
+  const p = new URLSearchParams();
+  const add = (k, v) => { if (v) p.set(k, v); };
+  add("type", $("#fType").value); add("region", $("#fRegion").value); add("since", $("#fSince").value); add("until", $("#fUntil").value);
+  add("q", $("#fQ").value.trim()); if (OPT.score_filter) add("min_score", $("#fScore").value); if ($("#fWatch").checked) p.set("watchlist", "1");
+  p.set("level", LEVEL); p.set("fields", OPT.fields.filter(f => CHOSEN.has(f.key) && f.level <= LEVEL).map(f => f.key).join(","));
+  return p;
+}
+function renderAllowance(a) {
+  const used = a.used_month, cap = a.rows_month;
+  $("#allow").replaceChildren(
+    el("div", { class: "big mono", style: "font-size:24px" }, fmt(used)),
+    el("div", { class: "fine" }, cap == null ? "rows exported this month (no monthly limit)" : `of ${fmt(cap)} rows exported this month`),
+    cap == null ? "" : el("div", { class: "meter", style: "margin:8px 0" }, el("i", { style: `width:${Math.min(100, used / cap * 100)}%` })),
+    el("div", { class: "fine" }, `Up to ${fmt(a.rows_per_export)} rows per download.`));
+}
+let seq = 0;
+async function refresh() {
+  if (!OPT.active) return;
+  if (!CHOSEN.size) { $("#preview").replaceChildren(el("div", { class: "empty" }, "Choose at least one column.")); $("#dl").disabled = true; return; }
+  const my = ++seq; msg("#exMsg", "");
+  $("#totalSub").textContent = "counting…";
+  try {
+    const d = await api("/v1/extract/preview?" + params());
+    if (my !== seq) return;
+    $("#total").textContent = fmt(d.total) + (d.more ? "+" : "");
+    $("#totalSub").textContent = `matching records · ${d.level_name} detail · ${d.columns.length} columns`;
+    renderAllowance(d.allowance);
+    const can = Math.min(d.total, d.allowance.max_now);
+    $("#maxRows").max = Math.max(1, d.allowance.max_now); $("#maxRows").value = can || "";
+    $("#dl").disabled = !can;
+    $("#dl").textContent = can ? `Download ${fmt(can)} rows` : "Download CSV";
+    if (d.allowance.max_now <= 0) msg("#exMsg", "You've used this month's export allowance. Upgrade under Account for more rows.", "warn");
+    else if (d.total > d.allowance.max_now) msg("#exMsg", `Your plan allows ${fmt(d.allowance.max_now)} rows in one download. Narrow the filters or download in batches by date.`, "warn");
+    if (!d.rows.length) return $("#preview").replaceChildren(el("div", { class: "empty" }, "No records match these filters yet."));
+    const numeric = new Set(["risk_score", "relevance", "turnover_gbp", "employees", "net_assets_gbp", "ccj_count_12m", "charges_outstanding", "connected_cos"]);
+    $("#preview").replaceChildren(el("table", {},
+      el("thead", {}, el("tr", {}, d.columns.map(c => el("th", {}, c.label)))),
+      el("tbody", {}, d.rows.map(r => el("tr", {}, d.columns.map(c => {
+        const v = r[c.key];
+        if (c.key === "notice_url" && v && /^https?:\/\//.test(v)) return el("td", {}, el("a", { href: v, target: "_blank", rel: "noopener noreferrer" }, "Open"));
+        return el("td", { class: numeric.has(c.key) ? "n" : "" }, v === true ? "Yes" : v === false ? "No" : v == null ? "" : typeof v === "number" ? fmt(v) : v);
+      }))))));
+  } catch (err) { if (my === seq) { msg("#exMsg", err.message); $("#total").textContent = "–"; $("#totalSub").textContent = "matching records"; } }
+}
+$("#dl").addEventListener("click", async () => {
+  const p = params(); const n = parseInt($("#maxRows").value, 10); if (n > 0) p.set("max_rows", n);
+  const btn = $("#dl"); btn.disabled = true; const label = btn.textContent; btn.textContent = "Preparing…";
+  try {
+    const r = await api("/v1/extract/export.csv?" + p, { raw: true });
+    const blob = await r.blob(); const name = (r.headers.get("content-disposition") || "").match(/filename="([^"]+)"/);
+    const a = el("a", { href: URL.createObjectURL(blob), download: name ? name[1] : "extract.csv" }); document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    msg("#exMsg", `Downloaded ${fmt(r.headers.get("x-rows"))} rows.`, "ok");
+    refresh();
+  } catch (err) { msg("#exMsg", err.message); } finally { btn.disabled = false; if (btn.textContent === "Preparing…") btn.textContent = label; }
+});
+
+/* ---------- watchlist ---------- */
+let WL = null;
+async function loadWatch() {
+  try {
+    const d = await api("/v1/watchlists");
+    WL = d.watchlists[0];
+    if (!WL) WL = await api("/v1/watchlists", { method: "POST", body: JSON.stringify({ name: "My watchlist" }) });
+    $("#wCount").textContent = `${fmt(d.used)}${d.limit ? " of " + fmt(d.limit) : ""} companies`;
+    const items = (await api(`/v1/watchlists/${WL.id}`)).items;
+    $("#wTable").replaceChildren(items.length ? el("table", {}, el("thead", {}, el("tr", {}, ["Number", "Company", "Status", "Label", "Owed (£)", ""].map(h => el("th", {}, h)))),
+      el("tbody", {}, items.map(i => el("tr", {}, el("td", { class: "mono" }, i.company_number), el("td", {}, i.name || "Fetching details…"), el("td", {}, i.status || ""),
+        el("td", {}, i.label || ""), el("td", { class: "n" }, i.amount_owed == null ? "" : fmt(i.amount_owed)),
+        el("td", {}, el("button", { class: "btn link", onclick: async () => { await api(`/v1/watchlists/${WL.id}/items/${encodeURIComponent(i.company_number)}`, { method: "DELETE" }); loadWatch(); } }, "Remove"))))))
+      : el("div", { class: "empty" }, "Nothing on your watchlist yet. Add companies you supply, rent to or are owed money by."));
+  } catch (err) { msg("#wMsg", err.message); }
+}
+$("#wAdd").addEventListener("click", async () => {
+  try {
+    await api(`/v1/watchlists/${WL.id}/items`, { method: "POST", body: JSON.stringify({ company_number: $("#wNum").value.trim(), label: $("#wLabel").value.trim() || null,
+      amount_owed: $("#wOwed").value ? parseInt($("#wOwed").value, 10) : null }) });
+    ["#wNum", "#wLabel", "#wOwed"].forEach(s => $(s).value = ""); msg("#wMsg", "Added.", "ok"); loadWatch(); OPT = await api("/v1/extract/options"); buildFilters();
+  } catch (err) { msg("#wMsg", err.message); }
+});
+$("#wFile").addEventListener("change", async e => {
+  const file = e.target.files[0]; if (!file) return;
+  try { const d = await api(`/v1/watchlists/${WL.id}/import`, { method: "POST", body: await file.text(), headers: { "Content-Type": "text/csv" } });
+    msg("#wUpMsg", `Added ${fmt(d.added)}, skipped ${fmt(d.skipped)}.`, "ok"); loadWatch(); } catch (err) { msg("#wUpMsg", err.message); }
+  e.target.value = "";
+});
+$("#wExport").addEventListener("click", async () => {
+  const r = await api(`/v1/watchlists/${WL.id}/export.csv`, { raw: true });
+  const a = el("a", { href: URL.createObjectURL(await r.blob()), download: "watchlist.csv" }); document.body.append(a); a.click(); a.remove();
+});
+
+/* ---------- account ---------- */
+async function loadAccount() {
+  ME = await api("/v1/me");
+  const o = ME.org, e = o.entitlements, a = OPT.allowance;
+  const rows = [["Account", o.name], ["Product", OPT.brand.name], ["Plan", PLANS.find(p => p.id === o.plan)?.name + (o.billing_cycle === "annual" ? " (annual)" : " (monthly)")],
+    ["Status", o.status === "trialing" ? `Free trial until ${o.trial_ends_at}` : o.status], ["Data detail", o.level_name],
+    ["Watchlist", e.watchlist_limit ? `up to ${fmt(e.watchlist_limit)} companies` : "unlimited"], ["Regions", e.regions ? `${e.regions} (${o.regions.join(", ") || "not set"})` : "all UK"],
+    ["Alert channels", e.channels.join(", ")], ["Exports", `${fmt(a.rows_per_export)} rows per file · ${a.rows_month == null ? "no monthly limit" : fmt(a.rows_month) + " rows a month"}`], ["People", e.seats ? `up to ${e.seats}` : "unlimited"]];
+  $("#acct").replaceChildren(...rows.flatMap(([k, v]) => [el("dt", {}, k), el("dd", {}, v)]));
+  $("#plans").replaceChildren(...PLANS.filter(p => p.monthly_gbp).map(p => el("div", { class: "plan" + (p.id === o.plan ? " cur" : "") },
+    el("b", {}, p.name), el("div", { class: "price" }, `£${p.monthly_gbp}`, el("span", { class: "fine" }, " /month")), el("div", { class: "fine" }, `or £${fmt(p.annual_gbp)} a year · ${p.level_name} data`),
+    el("div", { style: "margin-top:10px" }, p.id === o.plan && o.status === "active" ? el("span", { class: "pill" }, "Current plan") :
+      el("button", { class: "btn sm", disabled: ME.user.role !== "owner", onclick: () => checkout(p.id) }, p.id === o.plan ? "Subscribe" : "Switch to " + p.name)))),
+    el("div", { class: "plan" }, el("b", {}, "Enterprise"), el("div", { class: "price" }, "Custom"), el("div", { class: "fine" }, "Full-record data, unlimited exports, a named contact."),
+      el("div", { style: "margin-top:10px" }, el("span", { class: "fine" }, "Contact our team"))));
+  const t = await api("/v1/org/members");
+  $("#team").replaceChildren(el("div", { class: "fine", style: "margin-bottom:6px" }, `${t.members.length} of ${t.seats || "unlimited"} seats used`),
+    ...t.members.map(m => el("div", { class: "check" }, el("b", {}, m.name || m.email), el("span", { class: "fine" }, `${m.email} · ${m.role}`))));
+  $("#addMember").classList.toggle("hidden", ME.user.role !== "owner");
+}
+async function checkout(plan) {
+  try { const d = await api("/v1/billing/checkout", { method: "POST", body: JSON.stringify({ plan, cycle: $("#annual").checked ? "annual" : "monthly", success_url: location.origin + "/app?paid=1", cancel_url: location.href }) });
+    location.href = d.url; } catch (err) { msg("#billMsg", err.message.includes("Stripe") || err.message.includes("not configured") ? "Online payment isn't switched on yet. Contact us and we'll set up your plan." : err.message); }
+}
+$("#pwBtn").addEventListener("click", async () => {
+  try { await api("/v1/auth/password", { method: "POST", body: JSON.stringify({ current_password: $("#pwCur").value, new_password: $("#pwNew").value }) });
+    $("#pwCur").value = $("#pwNew").value = ""; msg("#pwMsg", "Password updated.", "ok"); } catch (err) { msg("#pwMsg", err.message); }
+});
+$("#mBtn").addEventListener("click", async () => {
+  try { await api("/v1/org/members", { method: "POST", body: JSON.stringify({ name: $("#mName").value, email: $("#mEmail").value, password: $("#mPw").value }) });
+    ["#mName", "#mEmail", "#mPw"].forEach(s => $(s).value = ""); msg("#mMsg", "Added. Give them their temporary password separately.", "ok"); loadAccount(); } catch (err) { msg("#mMsg", err.message); }
+});
+
+/* ---------- boot ---------- */
+loadPublic().catch(() => {}).finally(async () => {
+  if (TOKEN) { try { await start(); return; } catch (e) { signOut(); } }
+  $("#auth").classList.remove("hidden");
+  if (qs.get("signup")) $$(".tabs button")[1].click();
+});
+</script>
+</body>
+</html>

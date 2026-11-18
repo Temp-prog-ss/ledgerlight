@@ -1,0 +1,11 @@
+# Core (all tested)
+starlette>=0.40
+uvicorn[standard]>=0.30
+pydantic>=2.6
+PyJWT>=2.8
+requests>=2.31
+
+# Production extras
+psycopg[binary]>=3.1   # Postgres driver (DATABASE_URL=postgresql://...)
+paramiko>=3.4          # SFTP file drops (Pro plan)
+pytest>=8              # tests

@@ -1,0 +1,11 @@
+.env
+*.db
+outbox/
+exports/
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+test-report.txt
+.fuse_hidden*
+.DS_Store

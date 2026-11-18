@@ -1,0 +1,66 @@
+{
+ "sitesentinel": [
+  {"t": "County court judgments", "fact": "42,260 new commercial judgments in Q2 2026; 591,620 commercial judgments unpaid at 1 July 2026.", "src": "https://www.registry-trust.org.uk/court-judgment-statistics/q2-2026", "lvl": "Alerts: Team and above"},
+  {"t": "Late-payment law & retention ban", "fact": "Bill introduced May 2026: 60-day cap, construction retention ban, interest at 8% above base. No commencement dates yet.", "src": "https://www.gov.uk/government/publications/commercial-payments-bill-factsheets/commercial-payments-bill-overview"},
+  {"t": "CIS gross payment status", "fact": "Since 6 April 2026 HMRC can remove status immediately for fraud; reapplication wait rose from 1 to 5 years.", "src": "https://www.rpclegal.com/thinking/tax-take/significant-changes-to-the-construction-industry-scheme-coming-into-effect-on-6-april-2026/"},
+  {"t": "Building Safety Regulator delays", "fact": "1,654 applications waiting at end of August 2026; median 22 weeks for new-build approvals.", "src": "https://www.gov.uk/government/publications/building-safety-regulator-building-control-approval-application-data-june-to-august-2026/building-safety-regulator-building-control-approval-application-data-june-to-august-2026"},
+  {"t": "Material price inflation", "fact": "All Work materials up 7.2% a year in September 2026; structural steel up 19.9%.", "src": "https://www.bcis.co.uk/news/latest-construction-materials-prices/"},
+  {"t": "Public-sector payment performance", "fact": "Payments compliance notices started 1 January 2026; April–September notices due by 30 October 2026.", "src": "https://www.trowers.com/insights/payments-compliance-notices-update"}
+ ],
+ "sponsorwatch": [
+  {"t": "Sponsor licence enforcement", "fact": "Revocations: 1,494 in 2024, 3,100 in 2025, 2,346 in January–June 2026.", "src": "https://www.davidsonmorris.com/?p=119203", "lvl": "Alerts: Team and above"},
+  {"t": "Earned settlement (10-year ILR)", "fact": "Confirmed 2 November 2026: standard route to settlement moves from 5 to 10 years.", "src": "https://www.wfw.com/articles/uk-government-confirms-earned-settlement-reforms-key-changes-to-ilr-rules-outlined/"},
+  {"t": "Right-to-work penalties", "fact": "Up to £60,000 per illegal worker; extended to worker contracts and gig platforms from 1 October 2026.", "src": "https://www.davidsonmorris.com/?p=118858"},
+  {"t": "Skilled Worker thresholds", "fact": "RQF 6 roles only since 22 July 2025; general threshold £41,700; Temporary Shortage List ends end of 2026.", "src": "https://www.womblebonddickinson.com/uk/insights/articles-and-briefings/immigration-reset-new-rules-confirm-major-shift-uk-immigration"},
+  {"t": "Immigration Skills Charge", "fact": "From 16 December 2025: £1,320 a year (large sponsors), £480 (small).", "src": "https://www.nhsemployers.org/news/immigration-skills-charge-increase"},
+  {"t": "Care sector closure", "fact": "Closed to new overseas care workers 22 July 2025; in-country switching allowed until 22 July 2028.", "src": "https://www.womblebonddickinson.com/uk/insights/articles-and-briefings/immigration-reset-new-rules-confirm-major-shift-uk-immigration"}
+ ],
+ "estatesignal": [
+  {"t": "Probate processing times", "fact": "April–June 2026: 57,698 grants, about 5 weeks on average; stopped applications about 14 weeks.", "src": "https://www.gov.uk/government/statistics/family-court-statistics-quarterly-april-to-june-2026/family-court-statistics-quarterly-april-to-june-2026"},
+  {"t": "Probate fee rise", "fact": "Probate application fee rose from £300 to £526 on 13 July 2026.", "src": "https://www.forsters.co.uk/p/102n88r/75-probate-fee-increase-from-13-july-2026-are-service-levels-keeping-pace"},
+  {"t": "Pensions in inheritance tax", "fact": "Pensions come into IHT from April 2027; nil-rate bands frozen until at least April 2031.", "src": "https://www.charles-stanley.co.uk/insights/commentary/inheritance-tax-on-pensions-is-yet-to-arrive-but-receipts-rise-again"},
+  {"t": "Farm & business relief cap", "fact": "From 6 April 2026: 100% relief up to £2.5m combined, 50% above.", "src": "https://www.gov.uk/government/publications/changes-to-agricultural-property-relief-and-business-property-relief/agricultural-property-relief-and-business-property-relief-changes."},
+  {"t": "House prices & sales volumes", "fact": "August 2026: average £273,000 (+0.9%); about 95,000 sales (−1.9%).", "src": "https://www.gov.uk/government/news/uk-house-price-index-for-august-2026"},
+  {"t": "Unclaimed estates list", "fact": "Updated daily by the Government Legal Department.", "src": "https://ckan.publishing.service.gov.uk/dataset/bona-vacantia-estates-advertisements", "lvl": "Alerts: Team and above"}
+ ],
+ "distressradar": [
+  {"t": "Interest rates", "fact": "Bank Rate raised to 4% on 5 November 2026; CPI 3.5% in September.", "src": "https://www.bankofengland.co.uk/monetary-policy-report/2026/november-2026"},
+  {"t": "HMRC debt & Time to Pay", "fact": "Tax debt £44.7bn in March 2026; 423 HMRC winding-up petitions in October 2025.", "src": "https://www.bdo.co.uk/en-gb/news/2026/little-sign-of-progress-as-tax-debt-rises-to-44-7bn", "lvl": "Alerts: Team and above"},
+  {"t": "Individual insolvency volumes", "fact": "September 2026: 11,894 individual insolvencies (+9%); IVAs 7,385 (+17%).", "src": "https://www.gov.uk/government/statistics/individual-insolvencies-september-2026/commentary-individual-insolvency-statistics-september-2026"},
+  {"t": "Director disqualifications", "fact": "1,158 disqualifications in 2025/26, averaging 8.1 years.", "src": "https://www.gov.uk/government/publications/insolvency-service-enforcement-outcomes-management-information/insolvency-service-enforcement-outcomes-2025-26"},
+  {"t": "Bounce Back Loan defaults", "fact": "At 30 September 2025, guarantee paid on 26.7% of loans (£11.42bn).", "src": "https://www.gov.uk/government/publications/covid-19-loan-guarantee-schemes-repayment-data-september-2025/covid-19-loan-guarantee-schemes-repayment-data-september-2025"},
+  {"t": "County court judgments", "fact": "Q1 2026: 316,002 judgments (+11.9%); commercial 44,498.", "src": "https://www.registry-trust.org.uk/court-judgment-statistics/q1-2026-summary", "lvl": "Alerts: Team and above"}
+ ],
+ "tenantguard": [
+  {"t": "Tenant CVAs & restructuring plans", "fact": "June 2026: one retailer's plan cut rents by at least 25% at about 50 stores.", "src": "https://www.costar.com/article/166964209/the-return-of-the-cva-should-retail-and-f-b-landlords-start-to-worry", "lvl": "Alerts: Team and above"},
+  {"t": "Minimum energy standards (MEES)", "fact": "Letting below EPC E unlawful; EPC B targeted by 2031 for buildings over 1,000 m²; penalties up to £150,000.", "src": "https://www.jonesday.com/en/insights/2026/09/nondomestic-mees-uk-government-confirms-epc-b-target-for-larger-commercial-buildings-from-2031"},
+  {"t": "Business rates", "fact": "From April 2026: 50.8p multiplier for RV £500k+; 38.2p for smaller retail, hospitality and leisure.", "src": "https://www.swindon.gov.uk/info/20041/business_rates/1751/changes_to_business_rates_multipliers_from_april_2026"},
+  {"t": "Upwards-only rent review ban", "fact": "Royal Assent 29 April 2026; not yet in force, likely 2027.", "src": "https://www.burges-salmon.com/articles/102mrf2/upwards-only-rent-review-ban-receives-royal-assent"},
+  {"t": "Interest rates", "fact": "Bank Rate rose to 4% on 5 November 2026.", "src": "https://www.bankofengland.co.uk/monetary-policy-report/2026/november-2026"},
+  {"t": "Renters' Rights Act", "fact": "Section 21 abolished 1 May 2026; fines £7,000–£40,000.", "src": "https://www.hcrlaw.com/news-and-insights/renters-rights-act-incoming-changes-from-1-may/"}
+ ],
+ "talentrelease": [
+  {"t": "Umbrella-company PAYE liability", "fact": "From April 2026 agencies are jointly liable for unpaid umbrella PAYE.", "src": "https://www.pinsentmasons.com/out-law/news/umbrella-reforms-land-uk-agencies-with-joint-and-several-liable-for-unpaid-paye", "lvl": "Alerts: Team and above"},
+  {"t": "Wage & employer NIC costs", "fact": "National Living Wage £12.71 from April 2026; employer NIC 15% above £5,000.", "src": "https://www.grantthornton.co.uk/insights/employment-cost-rises-where-things-stand-in-202627-and-whats-coming-next/"},
+  {"t": "Employment Rights Act 2025", "fact": "Day-one SSP since 6 April 2026; 6-month unfair dismissal qualifying period from 1 January 2027.", "src": "https://www.citation.co.uk/employment-rights-act-2025-implementation-timeline/"},
+  {"t": "IR35 size thresholds", "fact": "From 6 April 2026: turnover £15m, balance sheet £7.5m, 50 staff (two of three).", "src": "https://www.forvismazars.com/uk/en/insights/corporate-tax-insights/new-ir35-off-payroll-thresholds"},
+  {"t": "Client hiring demand", "fact": "October 2026: permanent placements and temp billings both fell.", "src": "https://kpmg.com/uk/en/media/press-releases/2026/11/kpmg-and-rec-uk-report-on-jobs-november-2026.html"},
+  {"t": "Client late payment", "fact": "Bill introduced May 2026 with 60-day cap and interest at 8% above base.", "src": "https://www.gov.uk/government/publications/commercial-payments-bill-factsheets/commercial-payments-bill-overview", "lvl": "Alerts: Team and above"}
+ ],
+ "creditpulse": [
+  {"t": "County court judgments", "fact": "Q2 2026: 42,260 new business judgments worth about £200m.", "src": "https://registry-trust.org.uk/court-judgment-statistics/q2-2026-summary", "lvl": "Alerts: Team and above"},
+  {"t": "Late-payment reform", "fact": "Bill introduced May 2026; government says late payment closes 38 businesses a day.", "src": "https://www.gov.uk/government/news/largest-crackdown-on-late-payments-in-over-25-years-as-landmark-bill-enters-parliament"},
+  {"t": "Payment practices reports", "fact": "2025: large businesses paid in 32 days on average; 15% of invoices paid late.", "src": "https://www.gov.uk/government/statistics/large-businesses-payment-practices-and-performance-statistics-2025/large-businesses-payment-practices-and-performance-statistics-2025-commentary"},
+  {"t": "Interest rates", "fact": "Bank Rate 4% from 5 November 2026; statutory late-payment interest therefore 12%.", "src": "https://www.bankofengland.co.uk/monetary-policy-report/2026/november-2026"},
+  {"t": "SME credit availability", "fact": "Q3 2026: credit availability fell for small and medium businesses.", "src": "https://www.bankofengland.co.uk/credit-conditions-survey/2026/2026-q3"},
+  {"t": "Strike-offs", "fact": "156,515 companies dissolved in Q2 2026, 67,815 compulsorily.", "src": "https://www.gov.uk/government/statistics/incorporated-companies-in-the-uk-april-to-june-2026/incorporated-companies-in-the-uk-april-to-june-2026", "lvl": "Alerts: Team and above"}
+ ],
+ "filingpulse": [
+  {"t": "Identity verification", "fact": "By June 2026 only 55% of directors and 42% of PSCs had verified.", "src": "https://www.lawdebenture.com/news-insights/millions-of-directors-still-unverified-the-17-november-deadline-is-closer-than-it-looks", "lvl": "Alerts: Team and above"},
+  {"t": "Making Tax Digital for Income Tax", "fact": "Above £50k since April 2026; £30k from April 2027; £20k from April 2028.", "src": "https://www.gov.uk/guidance/check-when-to-sign-up-for-making-tax-digital-for-income-tax"},
+  {"t": "Companies House fee rises", "fact": "Since 1 February 2026: £100 digital incorporation, £50 confirmation statement.", "src": "https://www.simplybusiness.co.uk/knowledge/business-structure/companies-house-changes-for-2026/"},
+  {"t": "Accounts filing reform", "fact": "Paused January 2026; at least 21 months' notice promised.", "src": "https://www.rapidformations.co.uk/blog/companies-house-profit-and-loss-filing/"},
+  {"t": "HMRC late-payment interest", "fact": "Base rate plus 4%: 8% after the November 2026 rise.", "src": "https://www.gov.uk/government/news/hmrc-interest-rates-update--2"},
+  {"t": "AML supervision reform", "fact": "Moving to the FCA; confirmed policy, not yet law.", "src": "https://vinciworks.com/?p=39148"}
+ ]
+}
