@@ -68,6 +68,14 @@ tr:hover td{background:#FBFBF8}
 .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .plan{border:1px solid var(--line);border-radius:12px;padding:16px}.plan.cur{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
 .plan .price{font-family:var(--serif);font-size:26px;font-weight:600}
+.band{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.band.Low{background:#E6F3EC;color:#1E6B45}.band.Watch{background:#EEF0F2;color:#3E4A55}.band.Elevated{background:#FFF4D9;color:#8A5A00}
+.band.High{background:#FDEBDD;color:#9A4510}.band.Critical{background:#FDECEC;color:#9B2C2C}
+.prob{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1}
+.reason{display:flex;gap:10px;padding:8px 0;border-top:1px solid #F0EEE7;font-size:14px}.reason b{font-family:var(--mono);font-size:12px;color:var(--ink2);min-width:44px}
+.action{background:var(--soft);border-radius:10px;padding:12px 14px;margin:10px 0}.action b{display:block;margin-bottom:4px}
+.tl{border-left:2px solid var(--line);margin:6px 0 0 6px;padding-left:12px}.tl div{position:relative;padding:4px 0;font-size:13.5px}
+.tl div:before{content:"";position:absolute;left:-17px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
 @media (max-width:900px){#auth{grid-template-columns:1fr}.pitch{padding:32px}.grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:1fr}nav.main{overflow:auto}}
 </style>
 </head>
@@ -106,7 +114,7 @@ tr:hover td{background:#FBFBF8}
 <div id="app" class="hidden">
   <header class="top"><div class="topin">
     <div class="brandname" id="bName">Ledgerlight</div>
-    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button></nav>
+    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button></nav>
     <div class="sp"></div>
     <span class="pill" id="planPill"></span>
     <span class="fine" id="who"></span>
@@ -154,6 +162,21 @@ tr:hover td{background:#FBFBF8}
             <p class="fine">Preview shows the first 25 rows. Every download is logged against your account, and the data may only be used as set out in our terms.</p>
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Company insight -->
+    <section id="v-insight" class="hidden">
+      <div class="grid">
+        <div>
+          <div class="card"><h3>Look up a company</h3>
+            <label class="f">Company number<input id="iNum" placeholder="e.g. 01234567"></label>
+            <button class="btn" id="iGo">Show insight</button><div id="iMsg"></div>
+            <p class="fine" id="iAllow"></p></div>
+          <div class="card"><h3>My watchlist by risk</h3><div id="iBands" class="fine" style="margin-bottom:8px"></div><div id="iList"></div>
+            <p class="fine">Watchlist companies are re-scored daily and never use your lookup allowance.</p></div>
+        </div>
+        <div id="iReport"><div class="card"><div class="empty">Pick a company to see its 12-month risk, the reasons behind it and what to do next.</div></div></div>
       </div>
     </section>
 
@@ -284,8 +307,8 @@ $("#logout").addEventListener("click", signOut);
 $$("nav.main button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
 function show(v) {
   $$("nav.main button").forEach(x => x.classList.toggle("on", x.dataset.v === v));
-  ["extract", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
-  if (v === "watch") loadWatch(); if (v === "account") loadAccount();
+  ["extract", "insight", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  if (v === "watch") loadWatch(); if (v === "account") loadAccount(); if (v === "insight") loadInsightList();
 }
 
 async function start() {
@@ -425,6 +448,78 @@ $("#wExport").addEventListener("click", async () => {
   const r = await api(`/v1/watchlists/${WL.id}/export.csv`, { raw: true });
   const a = el("a", { href: URL.createObjectURL(await r.blob()), download: "watchlist.csv" }); document.body.append(a); a.click(); a.remove();
 });
+
+/* ---------- company insight ---------- */
+const pct = p => p == null ? "–" : (p * 100 < 1 ? (p * 100).toFixed(2) : (p * 100).toFixed(1)) + "%";
+const bandChip = b => el("span", { class: "band " + b }, { Low: "● ", Watch: "◐ ", Elevated: "▲ ", High: "▲▲ ", Critical: "■ " }[b] || "", b);
+const ACTION_LABELS = { no_change: "No change", monitor: "Keep monitoring", shorten_terms: "Shorten payment terms", reduce_limit: "Reduce credit limit",
+  deposit_required: "Require deposit / pro-forma", stop_credit: "Stop credit", increase_limit: "Increase credit limit", new_order: "Accept a new order",
+  chase_debt: "Chase overdue debt", legal_action: "Start legal action", contact_opportunity: "Make contact (opportunity)", other: "Other" };
+const OUTCOME_LABELS = { paid_on_time: "Paid on time", paid_late: "Paid late", partly_paid: "Partly paid", unpaid: "Unpaid", company_failed: "Company failed",
+  won_business: "Won business", no_outcome_yet: "No outcome yet" };
+async function loadInsightList() {
+  try {
+    const d = await api("/v1/insight/watchlist");
+    $("#iAllow").textContent = d.allowance.limit == null ? "Unlimited lookups on your plan." : `${fmt(d.allowance.used)} of ${fmt(d.allowance.limit)} lookups used this month.`;
+    $("#iBands").replaceChildren(...["Critical", "High", "Elevated", "Watch", "Low"].filter(b => d.bands[b]).map(b => el("span", { style: "margin-right:8px" }, bandChip(b), " ", d.bands[b])));
+    $("#iList").replaceChildren(d.companies.length ? el("table", {}, el("tbody", {}, d.companies.map(c => el("tr", { style: "cursor:pointer", onclick: () => openInsight(c.company_number) },
+      el("td", {}, el("b", {}, c.company_name), el("div", { class: "fine" }, c.top_reason || c.sector)), el("td", { class: "n" }, pct(c.probability)), el("td", {}, bandChip(c.band),
+      c.trend === "rising" ? el("span", { class: "fine", title: "Rising since last month" }, " ↑") : c.trend === "falling" ? el("span", { class: "fine", title: "Falling since last month" }, " ↓") : "")))))
+      : el("div", { class: "fine" }, "Add companies to your watchlist to rank them by risk."));
+  } catch (err) { msg("#iMsg", err.message); }
+}
+$("#iGo").addEventListener("click", () => openInsight($("#iNum").value.trim()));
+$("#iNum").addEventListener("keydown", e => { if (e.key === "Enter") openInsight($("#iNum").value.trim()); });
+async function openInsight(number) {
+  if (!number) return msg("#iMsg", "Enter a company number");
+  msg("#iMsg", ""); $("#iReport").replaceChildren(el("div", { class: "card" }, el("div", { class: "empty" }, "Scoring…")));
+  let d;
+  try { d = await api("/v1/insight/company/" + encodeURIComponent(number)); } catch (err) { $("#iReport").replaceChildren(el("div", { class: "card" }, el("div", { class: "msg err" }, err.message))); return; }
+  $("#iNum").value = d.company_number;
+  if (d.allowance) $("#iAllow").textContent = d.allowance.limit == null ? "Unlimited lookups on your plan." : `${fmt(d.allowance.used)} of ${fmt(d.allowance.limit)} lookups used this month.`;
+  const ratio = d.sector_base_rate ? d.probability / d.sector_base_rate : null;
+  const trend = { rising: "↑ rising since last month", falling: "↓ falling since last month", steady: "→ steady since last month", new: "first assessment" }[d.trend.direction];
+  const reasons = d.trigger ? [el("div", { class: "reason" }, el("b", {}, "■"), el("span", {}, el("strong", {}, d.trigger.label), " — formal insolvency event; the model is overridden."))] : [];
+  const reasonRow = (r, sign) => el("div", { class: "reason" }, el("b", {}, (sign > 0 ? "+" : "") + r.effect.toFixed(1)), el("span", {}, r.reason, r.detail ? ` (${r.detail})` : ""));
+  const decide = el("div");
+  const actionSel = el("select", { class: "" }, Object.entries(ACTION_LABELS).map(([k, v]) => el("option", { value: k }, v)));
+  const note = el("input", { placeholder: "Note (optional)" }), reviewer = el("input", { placeholder: "Second reviewer's email (High/Critical + more exposure)", type: "email" });
+  const decMsg = el("div");
+  const saveDecision = async () => { try { await api(`/v1/insight/company/${d.company_number}/decisions`, { method: "POST", body: JSON.stringify({ action: actionSel.value, note: note.value || null, second_reviewer: reviewer.value || null }) });
+    openInsight(d.company_number); } catch (err) { decMsg.replaceChildren(el("div", { class: "msg err" }, err.message)); } };
+  $("#iReport").replaceChildren(
+    el("div", { class: "card" },
+      el("div", { class: "resulthead" }, el("div", {}, el("h3", { style: "margin:0" }, d.company_name), el("div", { class: "fine" }, `${d.company_number} · ${d.sector} · ${d.status || ""}`)), el("span", { class: "sp" }), bandChip(d.band)),
+      el("div", { style: "display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap" },
+        el("div", {}, el("div", { class: "prob" }, pct(d.probability)), el("div", { class: "fine" }, "chance of formal insolvency in the next 12 months")),
+        el("div", { class: "fine" }, el("div", {}, `Sector average ${pct(d.sector_base_rate)}`, ratio && ratio >= 1.5 ? ` · ${ratio.toFixed(1)}× sector` : ""),
+          el("div", {}, trend), el("div", {}, d.peers.percentile == null ? "Not enough sector peers yet for a ranking" : `Riskier than ${d.peers.percentile}% of ${fmt(d.peers.count)} tracked ${d.sector.toLowerCase()} companies`),
+          el("div", {}, `Model ${d.model_version} · review ${d.review.toLowerCase()}`))),
+      el("div", { class: "action" }, el("b", {}, "Recommended action"), d.protocol.action, d.protocol.two_person_rule ? el("div", { class: "fine", style: "margin-top:6px" }, "Two-person rule: any decision that increases exposure needs a second reviewer.") : "")),
+    el("div", { class: "card" }, el("h3", {}, "Why"), ...reasons, ...d.reasons.map(r => reasonRow(r, 1)),
+      d.other_reasons.length ? el("details", {}, el("summary", { class: "fine" }, `${d.other_reasons.length} more`), ...d.other_reasons.map(r => reasonRow(r, 1))) : "",
+      d.reducing.length ? el("div", { class: "fine", style: "margin-top:10px" }, "Reducing risk:") : "", ...d.reducing.map(r => reasonRow(r, -1)),
+      !d.trigger && !d.reasons.length ? el("div", { class: "fine" }, "No warning signs in the data we hold; the figure is the sector and age base rate.") : ""),
+    el("div", { class: "grid", style: "grid-template-columns:1fr 1fr;gap:16px;margin-top:16px" },
+      el("div", { class: "card", style: "margin:0" }, el("h3", {}, "What changed"), d.timeline.length ? el("div", { class: "tl" }, d.timeline.slice(0, 12).map(t => el("div", {}, el("span", { class: "fine mono" }, t.date || ""), " ", t.label,
+        t.notice_url && /^https?:\/\//.test(t.notice_url) ? el("a", { href: t.notice_url, target: "_blank", rel: "noopener noreferrer", style: "margin-left:6px" }, "notice") : ""))) : el("div", { class: "fine" }, "No recent events in your product's feed.")),
+      el("div", { class: "card", style: "margin:0" }, el("h3", {}, "In the news"), d.news.length ? el("div", {}, d.news.map(n => el("div", { style: "padding:5px 0;font-size:13.5px" },
+        n.flagged ? el("span", { class: "band Elevated", style: "margin-right:6px" }, "! " + n.matched_terms.split(",")[0]) : "",
+        /^https?:\/\//.test(n.url) ? el("a", { href: n.url, target: "_blank", rel: "noopener noreferrer" }, n.title || n.url) : n.title, el("div", { class: "fine" }, `${n.domain || ""} · ${(n.published_at || "").slice(0, 10)}`)))) : el("div", { class: "fine" }, d.on_watchlist ? "No news found yet." : "Add to your watchlist to monitor news."))),
+    el("div", { class: "card", style: "margin-top:16px" }, el("h3", {}, "Decision log"),
+      el("div", { class: "row2" }, el("label", { class: "f" }, "Action", actionSel), el("label", { class: "f" }, "Note", note)), el("label", { class: "f" }, "Second reviewer", reviewer),
+      el("button", { class: "btn sm", onclick: saveDecision }, "Record decision"), decMsg,
+      d.decisions.length ? el("table", { style: "margin-top:12px" }, el("thead", {}, el("tr", {}, ["When", "Band", "Action", "By", "Outcome"].map(h => el("th", {}, h)))),
+        el("tbody", {}, d.decisions.map(x => {
+          const sel = el("select", {}, el("option", { value: "" }, "Set outcome…"), Object.entries(OUTCOME_LABELS).map(([k, v]) => el("option", { value: k, selected: x.outcome === k }, v)));
+          sel.addEventListener("change", async () => { if (sel.value) await api(`/v1/insight/decisions/${x.id}`, { method: "PATCH", body: JSON.stringify({ outcome: sel.value }) }); });
+          return el("tr", {}, el("td", { class: "fine" }, (x.created_at || "").slice(0, 10)), el("td", {}, x.band), el("td", {}, ACTION_LABELS[x.action] || x.action, x.note ? el("div", { class: "fine" }, x.note) : ""),
+            el("td", { class: "fine" }, x.by_email || "", x.second_reviewer ? el("div", {}, "✓ " + x.second_reviewer) : ""), el("td", {}, sel));
+        }))) : el("p", { class: "fine" }, "Record what you decide, and later what happened. It keeps your team consistent and teaches the model."),
+      el("details", { style: "margin-top:10px" }, el("summary", { class: "fine" }, "Decision rules"), el("ul", { class: "fine" }, d.protocol.rules.map(r => el("li", {}, r))))),
+    el("p", { class: "fine" }, "Information from public records, not advice. Probabilities are model estimates; you make the decision."));
+  loadInsightList();
+}
 
 /* ---------- account ---------- */
 async function loadAccount() {

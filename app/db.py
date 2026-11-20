@@ -175,6 +175,7 @@ def upsert(table, row, keys, update=None):
 # so existing databases (e.g. a SQLite file from a laptop) upgrade themselves on start.
 ADDED_COLUMNS = [
     ("export_jobs", "content", "TEXT"),
+    ("usage", "insight_lookups", "INTEGER DEFAULT 0"),
 ]
 
 

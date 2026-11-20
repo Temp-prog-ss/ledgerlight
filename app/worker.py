@@ -9,11 +9,11 @@ import threading
 import time
 from datetime import datetime
 
-from app import config, db
+from app import config, db, insight
 from app.delivery import dispatch
 from app.pipeline import run as pipeline
 from app.outreach import engine as outreach, inbox as outreach_inbox
-from app.sources import companies_house, gazette, registers, risk_watch
+from app.sources import companies_house, gazette, news, registers, risk_watch
 
 
 def _gazette():
@@ -78,6 +78,10 @@ JOBS = {
     "purge": dispatch.purge_old,
     "outreach_send": outreach.send_due,
     "outreach_inbox": lambda: len(outreach_inbox.poll_all()),
+    "insight_snapshot": lambda: insight.snapshot(),
+    "insight_label": lambda: insight.label(),
+    "insight_fit": lambda: insight.fit(),
+    "insight_news": lambda: news.poll_watched(),
 }
 
 # job -> seconds between runs
@@ -86,6 +90,7 @@ SCHEDULE = {
     "sponsors": 86400, "unclaimed_estates": 86400, "ccjs": 3600, "ccod": 30 * 86400,
     "enrich_watched": 86400, "risk_sources": 7 * 86400, "expire_trials": 3600, "purge": 86400,
     "outreach_send": 60, "outreach_inbox": 300,
+    "insight_snapshot": 86400, "insight_label": 86400, "insight_fit": 7 * 86400, "insight_news": 3600,
 }
 
 

@@ -5,14 +5,14 @@ LEVELS = {1: "Simple", 2: "Standard", 3: "Advanced", 4: "Full record"}
 
 PLANS = {
     "solo": dict(name="Solo", monthly_gbp=29, level=1, regions=1, watchlist_limit=25, briefs_per_month=50,
-                 seats=1, rows_per_export=500, export_rows_month=2000, channels={"email"}, instant=False, file_drops=False, crm_sync=False, wider_risk_alerts=False),
+                 seats=1, rows_per_export=500, export_rows_month=2000, insight_lookups_month=25, channels={"email"}, instant=False, file_drops=False, crm_sync=False, wider_risk_alerts=False),
     "team": dict(name="Team", monthly_gbp=99, level=2, regions=None, watchlist_limit=250, briefs_per_month=500,
-                 seats=3, rows_per_export=5000, export_rows_month=25000, channels={"email", "slack", "teams"}, instant=True, file_drops=False, crm_sync=False, wider_risk_alerts=False),
+                 seats=3, rows_per_export=5000, export_rows_month=25000, insight_lookups_month=250, channels={"email", "slack", "teams"}, instant=True, file_drops=False, crm_sync=False, wider_risk_alerts=False),
     "pro": dict(name="Pro", monthly_gbp=299, level=3, regions=None, watchlist_limit=2000, briefs_per_month=None,
-                seats=10, rows_per_export=25000, export_rows_month=250000, channels={"email", "slack", "teams", "sms", "sftp", "hubspot"},
+                seats=10, rows_per_export=25000, export_rows_month=250000, insight_lookups_month=2500, channels={"email", "slack", "teams", "sms", "sftp", "hubspot"},
                 instant=True, file_drops=True, crm_sync=True, wider_risk_alerts=True),
     "enterprise": dict(name="Enterprise", monthly_gbp=None, level=4, regions=None, watchlist_limit=None, briefs_per_month=None,
-                       seats=None, rows_per_export=100000, export_rows_month=None, channels={"email", "slack", "teams", "sms", "sftp", "hubspot"},
+                       seats=None, rows_per_export=100000, export_rows_month=None, insight_lookups_month=None, channels={"email", "slack", "teams", "sms", "sftp", "hubspot"},
                        instant=True, file_drops=True, crm_sync=True, wider_risk_alerts=True),
 }
 TRIAL_DAYS = 14

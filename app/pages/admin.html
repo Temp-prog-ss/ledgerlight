@@ -72,6 +72,7 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
     <button data-v="customers">Customers <span class="cnt hidden" id="cVet"></span></button>
     <button data-v="data">Data</button>
     <button data-v="review">Review <span class="cnt hidden" id="cRev"></span></button>
+    <button data-v="insight">Risk model</button>
     <button data-v="jobs">Jobs <span class="cnt hidden" id="cJobs"></span></button>
     <button data-v="audit">Audit log</button>
     <a href="/outreach">Outreach console ↗</a>
@@ -116,6 +117,17 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
             <input class="i" id="sVal" placeholder="Value"><input class="i" id="sWhy" placeholder="Reason"><button class="btn sm" id="sAdd">Suppress</button><span id="sMsg"></span></div>
           <div class="tablewrap" id="supps"></div></div>
       </div>
+    </section>
+
+    <section id="v-insight" class="hidden">
+      <div class="head"><h2>Risk model</h2><span class="fine" id="imStatus"></span></div>
+      <div class="kpis" id="imKpis"></div>
+      <div class="cols">
+        <div class="card"><h3>Calibration</h3><p class="fine">For labelled snapshots: what the model predicted against what happened. The model is ready to sell when the two columns are close and AUC is well above 0.5.</p><div class="tablewrap" id="imCal"></div></div>
+        <div class="card"><h3>This month's companies by band</h3><div id="imBands"></div><h3 style="margin-top:16px">Customer decisions</h3><div class="tablewrap" id="imDec"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px"><h3>Sector base rates</h3><p class="fine">Annual formal-insolvency rate per SIC section. Starting priors until replaced with official figures (Insolvency Service sector tables). Every change is audited.</p>
+        <div id="imMsg"></div><div class="tablewrap" id="imRates"></div></div>
     </section>
 
     <section id="v-jobs" class="hidden">
@@ -187,8 +199,8 @@ async function start() {
 $$("aside button[data-v]").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
 function show(v) {
   $$("aside button[data-v]").forEach(x => x.classList.toggle("on", x.dataset.v === v));
-  ["overview", "customers", "data", "review", "jobs", "audit"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
-  ({ overview: loadOverview, customers: loadCustomers, data: loadData, review: loadReview, jobs: loadJobs, audit: loadAudit })[v]().catch(err => alertBox(err.message));
+  ["overview", "customers", "data", "review", "insight", "jobs", "audit"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  ({ overview: loadOverview, customers: loadCustomers, data: loadData, review: loadReview, insight: loadInsight, jobs: loadJobs, audit: loadAudit })[v]().catch(err => alertBox(err.message));
 }
 function alertBox(t) { const m = $("main"); m.prepend(el("div", { class: "msg err" }, t)); setTimeout(() => m.firstChild?.classList?.contains("msg") && m.firstChild.remove(), 6000); }
 const badge = (id, n) => { $(id).textContent = n; $(id).classList.toggle("hidden", !n); };
@@ -311,6 +323,25 @@ $("#sAdd").addEventListener("click", async () => {
   try { await api("/v1/admin/suppressions", { method: "POST", body: JSON.stringify({ kind: $("#sKind").value, value: $("#sVal").value, reason: $("#sWhy").value || "staff" }) });
     $("#sVal").value = $("#sWhy").value = ""; msg("#sMsg", "Suppressed everywhere.", "ok"); loadReview(); } catch (err) { msg("#sMsg", err.message); }
 });
+
+/* ---------- risk model ---------- */
+const pc = p => p == null ? "–" : (p * 100).toFixed(2) + "%";
+async function loadInsight() {
+  const d = await api("/v1/admin/insight"), c = d.calibration;
+  $("#imStatus").textContent = `Model ${c.model}` + (d.fit && d.fit.version ? ` · fitted on ${fmt(d.fit.rows)} snapshots` : " · starting priors (needs 200 labelled failures to fit)");
+  $("#imKpis").replaceChildren(...[["Snapshots", d.snapshots], ["Latest month", d.latest_month || "–"], ["Labelled", c.labelled], ["Failures", c.failures], ["AUC", c.auc == null ? "–" : c.auc]]
+    .map(([l, v]) => el("div", { class: "kpi" }, el("b", { class: "mono" }, typeof v === "number" ? fmt(v) : v), el("span", {}, l))));
+  $("#imCal").replaceChildren(table([{ h: "Band", k: "band" }, { h: "Labelled", k: "labelled", n: 1 }, { h: "Predicted", f: r => pc(r.predicted), n: 1 }, { h: "Actual", f: r => pc(r.actual), n: 1 }], c.bands));
+  const order = ["Critical", "High", "Elevated", "Watch", "Low"];
+  $("#imBands").replaceChildren(...hbars(order.map(b => ({ band: b, n: (d.bands.find(x => x.band === b) || {}).n || 0 })), r => r.band, r => r.n));
+  $("#imDec").replaceChildren(table([{ h: "Action", f: r => nice(r.action) }, { h: "Outcome", f: r => nice(r.outcome || "pending") }, { h: "Count", k: "n", n: 1 }], d.decisions));
+  $("#imRates").replaceChildren(table([{ h: "Section", k: "sic_section" }, { h: "Sector", k: "sector" }, { h: "Annual rate", f: r => pc(r.annual_rate), n: 1 }, { h: "Source", f: r => el("span", { class: "fine" }, r.source) },
+    { h: "", f: r => { const inp = el("input", { class: "i", type: "number", step: "0.0001", min: "0.0001", max: "0.5", placeholder: "e.g. 0.0095", style: "width:110px" });
+      const src = el("input", { class: "i", placeholder: "Source", style: "width:200px" });
+      return el("span", {}, inp, " ", src, " ", el("button", { class: "btn ghost sm", onclick: async () => { try {
+        await api("/v1/admin/insight/base-rates", { method: "POST", body: JSON.stringify({ sic_section: r.sic_section, annual_rate: parseFloat(inp.value), source: src.value }) });
+        msg("#imMsg", `Updated ${r.sector}.`, "ok"); loadInsight(); } catch (err) { msg("#imMsg", err.message); } } }, "Save")); } }], d.base_rates));
+}
 
 /* ---------- jobs ---------- */
 async function loadJobs() {

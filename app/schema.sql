@@ -188,6 +188,7 @@ CREATE TABLE IF NOT EXISTS usage (
   briefs INTEGER DEFAULT 0,
   exports INTEGER DEFAULT 0,
   export_rows INTEGER DEFAULT 0,
+  insight_lookups INTEGER DEFAULT 0,
   PRIMARY KEY (org_id, month)
 );
 
@@ -368,4 +369,57 @@ CREATE TABLE IF NOT EXISTS outreach_activity (
   kind TEXT,
   detail TEXT,
   at TEXT
+);
+
+-- Company Insight: monthly risk snapshots (training data), customer decisions, news, sector base rates.
+CREATE TABLE IF NOT EXISTS insight_snapshots (
+  company_number TEXT NOT NULL,
+  month TEXT NOT NULL,
+  sic_section TEXT,
+  features TEXT,
+  probability REAL,
+  band TEXT,
+  model_version TEXT,
+  label_failed INTEGER,
+  labelled_at TEXT,
+  created_at TEXT,
+  PRIMARY KEY (company_number, month)
+);
+CREATE INDEX IF NOT EXISTS ix_insight_snap_month ON insight_snapshots(month, sic_section);
+
+CREATE TABLE IF NOT EXISTS insight_decisions (
+  id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  company_number TEXT NOT NULL,
+  band TEXT,
+  probability REAL,
+  action TEXT NOT NULL,
+  note TEXT,
+  second_reviewer TEXT,
+  outcome TEXT,
+  outcome_at TEXT,
+  created_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_insight_dec_org ON insight_decisions(org_id, company_number);
+
+CREATE TABLE IF NOT EXISTS news_mentions (
+  id TEXT PRIMARY KEY,
+  company_number TEXT NOT NULL,
+  url TEXT NOT NULL,
+  title TEXT,
+  domain TEXT,
+  published_at TEXT,
+  flagged INTEGER DEFAULT 0,
+  matched_terms TEXT,
+  created_at TEXT,
+  UNIQUE (company_number, url)
+);
+CREATE INDEX IF NOT EXISTS ix_news_company ON news_mentions(company_number, published_at);
+
+CREATE TABLE IF NOT EXISTS base_rates (
+  sic_section TEXT PRIMARY KEY,
+  annual_rate REAL NOT NULL,
+  source TEXT,
+  updated_at TEXT
 );

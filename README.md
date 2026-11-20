@@ -63,6 +63,27 @@ never committed. `LL_DRY_RUN_DELIVERY` starts as `true` (nothing is emailed); se
 Moving local data: stop the local worker, then double-click `migrate-to-cloud.command` and paste the
 database's External Database URL. Safe to re-run. Only ever run one worker (cloud OR laptop), never both.
 
+## Company Insight (risk model)
+
+Every tracked company gets a 12-month probability of formal insolvency, a band (Low / Watch / Elevated / High /
+Critical), its top three reasons in plain words, trend vs last month, sector percentile and the recommended action
+for the customer's product. Design and evidence: the "Ledgerlight Company Insight" doc.
+
+- **Model (`app/insight.py`):** sector base rate (table `base_rates`, editable in admin → Risk model) × company-age
+  adjustment as the prior; behavioural/event signals add log-odds (late filing, director exits, CCJs, petitions,
+  charges under stress, ownership/office changes, sponsor licence loss, net assets, negative news). Formal insolvency
+  events override the model. Personal-data notices are never inputs; objections hide a company entirely.
+- **Learning loop:** `insight_snapshot` (daily) writes monthly snapshots; `insight_label` marks failures within 12
+  months; `insight_fit` (weekly) fits a discrete-time hazard model once 200 failures are labelled, replacing the
+  starting weights. Admin → Risk model shows calibration (predicted vs actual per band) and AUC.
+- **News (`app/sources/news.py`):** GDELT DOC 2.0 for watched companies (`insight_news`, hourly); headlines with
+  warning terms nudge the score a little and are shown with their links. No private individuals' names are stored.
+- **API:** `GET /v1/insight/company/{number}`, `GET /v1/insight/watchlist`, `POST /v1/insight/company/{number}/decisions`,
+  `PATCH /v1/insight/decisions/{id}`, `GET /v1/insight/decisions`; admin `GET /v1/admin/insight`,
+  `POST /v1/admin/insight/base-rates`. Lookups count against `insight_lookups_month` (Solo 25, Team 250, Pro 2,500,
+  Enterprise unlimited); watchlist companies are free. Raising exposure to a High/Critical company needs a second
+  reviewer from the same account.
+
 ## Customer portal and admin dashboard
 
 - **Customer portal: `/app`** (e.g. `http://localhost:8000/app`). Customers sign in or start a 14-day trial, then build an extract:

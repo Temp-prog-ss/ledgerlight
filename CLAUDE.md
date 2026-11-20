@@ -24,7 +24,8 @@ One backend serves the master platform (Ledgerlight) and eight brands: sitesenti
 6. **Plans live in `app/plans.py`.** Annual price = 10 × monthly. Trials always get Team features.
 7. **SQL must work on SQLite and Postgres.** Use `?` placeholders. No SQLite-only functions in app code. Wrap case-insensitive matches in `UPPER()`.
 8. **Every bug fix or new feature gets a test** in `tests/`.
-9. **Keep `LL_DRY_RUN_DELIVERY=true`** until a real test send to the owner's own email or Slack has been checked.
+9. **Company Insight is information, not advice.** Keep reasons and sources on every score, keep personal-data events out of model inputs, and keep the two-person rule for more exposure to High/Critical companies.
+10. **Keep `LL_DRY_RUN_DELIVERY=true`** until a real test send to the owner's own email or Slack has been checked.
 
 ## Outreach module (app/outreach/)
 - Console at `/outreach` (staff only). Sending is in `engine.py`, reply and bounce reading in `inbox.py`, lead rules in `leads.py`.

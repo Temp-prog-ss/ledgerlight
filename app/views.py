@@ -56,6 +56,9 @@ def visible_events(org, filters=None, limit=100, offset=0, include_embargoed=Fal
     if f.get("since"):
         where.append("e.published_at>=?")
         params.append(f["since"])
+    if f.get("company"):
+        where.append("e.company_number=?")
+        params.append(f["company"])
     if f.get("until"):
         where.append("SUBSTR(e.published_at,1,10)<=?")
         params.append(f["until"][:10])
@@ -130,12 +133,13 @@ def to_csv(rows, columns=None):
     return "﻿" + buf.getvalue()
 
 
-def bump_usage(org_id, briefs=0, exports=0, rows=0):
+def bump_usage(org_id, briefs=0, exports=0, rows=0, insight=0):
     month = date.today().strftime("%Y-%m")
     if not db.one("SELECT org_id FROM usage WHERE org_id=? AND month=?", (org_id, month)):
-        db.insert("usage", {"org_id": org_id, "month": month, "briefs": 0, "exports": 0, "export_rows": 0})
-    db.execute("UPDATE usage SET briefs=briefs+?, exports=exports+?, export_rows=export_rows+? WHERE org_id=? AND month=?",
-               (briefs, exports, rows, org_id, month))
+        db.insert("usage", {"org_id": org_id, "month": month, "briefs": 0, "exports": 0, "export_rows": 0, "insight_lookups": 0})
+    db.execute("UPDATE usage SET briefs=briefs+?, exports=exports+?, export_rows=export_rows+?, "
+               "insight_lookups=COALESCE(insight_lookups,0)+? WHERE org_id=? AND month=?",
+               (briefs, exports, rows, insight, org_id, month))
 
 
 def export_allowance(org):

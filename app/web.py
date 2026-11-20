@@ -808,7 +808,8 @@ def create_app():
         db.set_state("public_base_url", s.public_base_url)  # lets the worker build links to this site
     from app.outreach.api import ROUTES as OUTREACH_ROUTES
     from app.portal import ROUTES as PORTAL_ROUTES
-    return Starlette(routes=ROUTES + PORTAL_ROUTES + OUTREACH_ROUTES, exception_handlers={ApiError: on_api_error, Exception: on_error}, middleware=[
+    from app.insight_api import ROUTES as INSIGHT_ROUTES
+    return Starlette(routes=ROUTES + PORTAL_ROUTES + INSIGHT_ROUTES + OUTREACH_ROUTES, exception_handlers={ApiError: on_api_error, Exception: on_error}, middleware=[
         Middleware(CORSMiddleware, allow_origins=config.settings.origins, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
                    allow_headers=["Authorization", "Content-Type"], max_age=600)])
 
