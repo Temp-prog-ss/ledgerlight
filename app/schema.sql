@@ -105,7 +105,8 @@ CREATE TABLE IF NOT EXISTS orgs (
   timezone TEXT DEFAULT 'Europe/London',
   digest_hour INTEGER DEFAULT 7,
   last_digest_at TEXT,
-  created_at TEXT
+  created_at TEXT,
+  profile TEXT
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -423,3 +424,32 @@ CREATE TABLE IF NOT EXISTS base_rates (
   source TEXT,
   updated_at TEXT
 );
+
+-- Market news terminal: sector news wire, linked to companies Ledgerlight tracks.
+CREATE TABLE IF NOT EXISTS market_news (
+  id TEXT PRIMARY KEY,
+  url TEXT NOT NULL UNIQUE,
+  title TEXT NOT NULL,
+  domain TEXT,
+  published_at TEXT,
+  sectors TEXT,
+  themes TEXT,
+  tone TEXT,
+  companies TEXT,
+  source TEXT,
+  created_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_market_news_published ON market_news(published_at);
+
+CREATE TABLE IF NOT EXISTS terminal_explanations (
+  id TEXT PRIMARY KEY,
+  org_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  item_type TEXT NOT NULL,
+  item_id TEXT NOT NULL,
+  perspective TEXT NOT NULL,
+  result TEXT,
+  model TEXT,
+  created_at TEXT
+);
+CREATE INDEX IF NOT EXISTS ix_term_expl ON terminal_explanations(org_id, item_type, item_id, perspective);

@@ -114,7 +114,7 @@ tr:hover td{background:#FBFBF8}
 <div id="app" class="hidden">
   <header class="top"><div class="topin">
     <div class="brandname" id="bName">Ledgerlight</div>
-    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button></nav>
+    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button><a href="/terminal" style="padding:8px 12px;font-weight:700;color:var(--accent);text-decoration:none">Terminal ↗</a></nav>
     <div class="sp"></div>
     <span class="pill" id="planPill"></span>
     <span class="fine" id="who"></span>
@@ -324,6 +324,7 @@ async function start() {
   if (OPT.brand.vetted_only && !OPT.vetted) ban.append(el("div", { class: "msg warn" }, "We check every firm before showing estate data. We'll email you once your account is approved, usually within one working day."));
   buildFilters(); LEVEL = OPT.level; buildLevels(); selectAll(); refresh();
   show("extract");
+  if (qs.get("insight")) { show("insight"); openInsight(qs.get("insight")); }
 }
 
 /* ---------- extract builder ---------- */

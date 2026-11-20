@@ -56,6 +56,9 @@ def visible_events(org, filters=None, limit=100, offset=0, include_embargoed=Fal
     if f.get("since"):
         where.append("e.published_at>=?")
         params.append(f["since"])
+    if f.get("event_id"):
+        where.append("e.id=?")
+        params.append(f["event_id"])
     if f.get("company"):
         where.append("e.company_number=?")
         params.append(f["company"])

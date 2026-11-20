@@ -176,6 +176,7 @@ def upsert(table, row, keys, update=None):
 ADDED_COLUMNS = [
     ("export_jobs", "content", "TEXT"),
     ("usage", "insight_lookups", "INTEGER DEFAULT 0"),
+    ("orgs", "profile", "TEXT"),
 ]
 
 

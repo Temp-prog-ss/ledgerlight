@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terminal · Ledgerlight</title>
+<style>
+:root{--bg:#0A0D10;--panel:#11161B;--panel2:#161C22;--line:#232B33;--ink:#DCE3EA;--ink2:#A3AEB9;--muted:#6E7A86;--amber:#F2A93B;--amber2:#FFC66D;
+--neg:#F2645A;--pos:#3FB97A;--info:#5AA9F5;--warn:#E8B23A;--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;background:var(--bg);color:var(--ink);font:13px/1.45 var(--sans);overflow:hidden}
+button,input,select{font:inherit;color:inherit}a{color:var(--info)}
+.hidden{display:none!important}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+/* top bar */
+.top{height:48px;display:flex;align-items:center;gap:14px;padding:0 14px;border-bottom:1px solid var(--line);background:#0D1115}
+.logo{font-family:var(--mono);font-weight:700;letter-spacing:.08em;color:var(--amber);white-space:nowrap}.logo span{color:var(--ink2);font-weight:400}
+.cmd{flex:1;max-width:560px;display:flex;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:0 10px}
+.cmd input{flex:1;border:0;background:none;outline:none;padding:8px 6px;font-family:var(--mono);color:var(--amber2)}
+.cmd kbd{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--amber);border-radius:3px;padding:1px 6px;font-weight:700}
+.tbtn{border:1px solid var(--line);background:var(--panel2);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--ink2);white-space:nowrap}
+.tbtn.on{border-color:var(--amber);color:var(--amber2);background:#2A2112}.tbtn:hover{color:var(--ink)}
+.sp{flex:1}.clock{font-family:var(--mono);color:var(--ink2)}
+.live{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--pos)}.live:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pos);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.3}}
+/* layout */
+.wrap{display:grid;grid-template-columns:270px minmax(0,1fr) 430px;height:calc(100% - 48px - 30px)}
+.col{border-right:1px solid var(--line);overflow:auto;min-width:0}.col:last-child{border-right:0}
+.ph{position:sticky;top:0;z-index:2;background:#0D1115;display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);
+font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.ph .help{margin-left:auto;cursor:help;color:var(--muted);border:1px solid var(--line);border-radius:50%;width:17px;height:17px;display:inline-grid;place-items:center;font-size:10px;letter-spacing:0;text-transform:none}
+.note{color:var(--muted);font-size:11.5px;padding:6px 12px}
+/* sector monitor */
+.sec{display:grid;grid-template-columns:1fr 46px 54px;gap:6px;align-items:center;padding:7px 12px;border-bottom:1px solid #182027;cursor:pointer}
+.sec:hover,.sec.on{background:var(--panel2)}.sec.on{box-shadow:inset 3px 0 0 var(--amber)}
+.sec .n{font-family:var(--mono);text-align:right}.sec small{display:block;color:var(--muted);font-size:11px}
+.chg{font-family:var(--mono);text-align:right;font-size:12px}.up{color:var(--neg)}.down{color:var(--pos)}.flat{color:var(--muted)}
+/* movers */
+.mv{display:grid;grid-template-columns:1fr auto;gap:2px 8px;padding:7px 12px;border-bottom:1px solid #182027;cursor:pointer}.mv:hover{background:var(--panel2)}
+.mv b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* wire */
+.wire{width:100%;border-collapse:collapse}
+.wire td{padding:7px 10px;border-bottom:1px solid #182027;vertical-align:top}
+.wire tr{cursor:pointer}.wire tr:hover td{background:#131A20}.wire tr.sel td{background:#1C1810}.wire tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.wire tr.fresh td{animation:fresh 2.5s ease-out}@keyframes fresh{from{background:#2A2112}}
+.t{font-family:var(--mono);color:var(--ink2);white-space:nowrap;width:58px}
+.src{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis}
+.hl{color:var(--ink)}.hl.signal{color:var(--amber2);font-family:var(--mono);font-size:12.5px}
+.tone{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;vertical-align:1px}.tone.negative{background:var(--neg)}.tone.positive{background:var(--pos)}.tone.mixed{background:var(--warn)}.tone.neutral{background:var(--muted)}
+.tags{margin-top:4px;display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:3px;border:1px solid var(--line);color:var(--ink2);white-space:nowrap}
+.tag.rel{border-color:#5B4520;color:var(--amber2);background:#211A0E}.tag.flag{border-color:#4A2622;color:#FF9C94;background:#1E1110}
+.chip{font-family:var(--mono);font-size:10.5px;padding:1px 6px;border-radius:3px;white-space:nowrap}
+.b-Low{background:#11281D;color:#6FD79F}.b-Watch{background:#1C232A;color:#A3AEB9}.b-Elevated{background:#2B2410;color:#F1C25B}.b-High{background:#30190F;color:#FF9A5C}.b-Critical{background:#351414;color:#FF7B72}
+/* detail */
+.det{padding:14px}
+.det h2{font-size:17px;line-height:1.35;margin:0 0 6px;font-weight:600}
+.meta{color:var(--muted);font-family:var(--mono);font-size:11.5px;margin-bottom:10px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:12px}
+.box h4{margin:0 0 8px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber)}
+.co{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:6px 0;border-top:1px solid #1B232A}.co:first-of-type{border-top:0}
+.persp{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.persp button{border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:5px 10px;cursor:pointer;color:var(--ink2);font-size:12px}
+.persp button.on{border-color:var(--amber);color:var(--amber2);background:#2A2112}
+.go{width:100%;border:0;border-radius:8px;padding:11px;background:var(--amber);color:#1A1205;font-weight:700;cursor:pointer;font-size:14px}
+.go:disabled{opacity:.5;cursor:wait}
+.ans p{margin:0 0 8px}.ans ul{margin:0;padding-left:18px}.ans li{margin:3px 0;color:var(--ink)}
+.act{display:grid;grid-template-columns:70px 1fr;gap:8px;padding:7px 0;border-top:1px solid #1B232A}.act:first-child{border-top:0}
+.u{font-family:var(--mono);font-size:10.5px;padding:2px 6px;border-radius:3px;text-align:center;height:fit-content}
+.u-now{background:#351414;color:#FF7B72}.u-thisweek{background:#2B2410;color:#F1C25B}.u-monitor{background:#1C232A;color:var(--ink2)}
+.why{color:var(--muted);font-size:12px}
+.trail{font-family:var(--mono);font-size:11px;color:var(--muted)}.trail div:before{content:"› ";color:var(--amber)}
+.disc{font-size:11px;color:var(--muted);margin-top:8px}
+.empty{color:var(--muted);padding:30px 14px;text-align:center}
+/* ticker */
+.ticker{height:30px;border-top:1px solid var(--line);background:#0D1115;overflow:hidden;white-space:nowrap;display:flex;align-items:center}
+.ticker .lab{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--amber);padding:0 10px;height:100%;display:flex;align-items:center;font-weight:700;flex:none}
+.ticker .run{display:inline-block;padding-left:100%;animation:run 60s linear infinite;font-family:var(--mono);font-size:12px}
+.ticker:hover .run{animation-play-state:paused}@keyframes run{to{transform:translateX(-100%)}}
+.ticker .run span{margin-right:28px}
+/* modal */
+.modal{position:fixed;inset:0;background:#000a;display:grid;place-items:center;z-index:20}
+.modal .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px;width:min(520px,94vw)}
+.modal h3{margin:0 0 4px;color:var(--amber2)}.modal label{display:block;font-size:12px;color:var(--ink2);margin:12px 0 4px}
+.modal select,.modal input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12.5px;align-items:center}
+@media (max-width:1100px){.wrap{grid-template-columns:1fr}.col{border-right:0}body{overflow:auto}.wrap{height:auto}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo">LEDGERLIGHT <span>TERMINAL</span></div>
+  <div class="cmd"><input id="q" placeholder="Search a company, number, sector or keyword" autocomplete="off"><kbd>GO</kbd></div>
+  <button class="tbtn" id="wlBtn" title="Only show items linked to companies on your watchlist">My watchlist</button>
+  <select class="tbtn" id="days" title="How far back the wire goes"><option value="1">24h</option><option value="7" selected>7 days</option><option value="30">30 days</option></select>
+  <span class="sp"></span>
+  <span class="live" id="live">LIVE</span>
+  <button class="tbtn" id="legendBtn">Key</button>
+  <button class="tbtn" id="profBtn">My business</button>
+  <a class="tbtn" href="/app" style="text-decoration:none">Portal</a>
+  <span class="clock" id="clock"></span>
+</div>
+
+<div class="wrap">
+  <div class="col">
+    <div class="ph">Sector monitor <span class="help" title="Ledgerlight signals (insolvency notices, overdue filings, director exits…) this week, the change on last week, and how much of the sector's news is negative. Click a sector to filter the wire.">?</span></div>
+    <div class="sec on" data-s="" id="allSec"><div>All sectors<small>Everything in your feed</small></div><div></div><div></div></div>
+    <div id="sectors"></div>
+    <div class="ph" style="margin-top:6px">Watchlist movers <span class="help" title="Your watchlist companies whose 12-month risk changed most since last month. Click to see their news.">?</span></div>
+    <div id="movers"></div>
+  </div>
+
+  <div class="col" id="wireCol">
+    <div class="ph">Live wire <span id="count" style="color:var(--muted);letter-spacing:0;text-transform:none"></span><span class="help" title="Market news and Ledgerlight signals in time order. Amber headlines are Ledgerlight signals from official sources; white headlines are news. The dot shows tone: red negative, green positive.">?</span></div>
+    <table class="wire"><tbody id="wire"></tbody></table>
+    <div class="empty hidden" id="wireEmpty">Nothing matches yet. Try All sectors or a longer time range.</div>
+  </div>
+
+  <div class="col">
+    <div class="ph">Analysis <span class="help" title="Pick any line on the wire. Choose a point of view and press the button: three AI steps gather your Ledgerlight data, explain what it means for you, and check the answer against the facts.">?</span></div>
+    <div id="detail"><div class="empty">Select a headline to see the companies it links to, and what it means for your business.</div></div>
+  </div>
+</div>
+
+<div class="ticker"><div class="lab">MOVERS</div><div class="run" id="tick"></div></div>
+
+<div class="modal hidden" id="legend"><div class="card">
+  <h3>How to read the terminal</h3>
+  <div class="legend" style="margin-top:12px">
+    <span class="hl signal">AMBER</span><span>Ledgerlight signal from an official source (Gazette, Companies House, registers)</span>
+    <span>White</span><span>News headline from UK media</span>
+    <span><span class="tone negative"></span><span class="tone mixed"></span><span class="tone positive"></span></span><span>Tone: negative, mixed, positive</span>
+    <span class="tag rel">watchlist</span><span>Linked to a company on your watchlist</span>
+    <span class="tag rel">your sector</span><span>In your sector, or a sector your watchlist companies are in</span>
+    <span class="tag flag">High-risk company</span><span>Mentions a company rated High or Critical</span>
+    <span><span class="chip b-Low">Low</span> → <span class="chip b-Critical">Critical</span></span><span>Ledgerlight 12-month risk band for that company</span>
+  </div>
+  <p class="note" style="padding:12px 0 0">Shortcuts: <span class="mono">/</span> search · <span class="mono">j / k</span> move · <span class="mono">Enter</span> explain</p>
+  <button class="go" style="margin-top:10px" onclick="document.getElementById('legend').classList.add('hidden')">Got it</button>
+</div></div>
+
+<div class="modal hidden" id="profile"><div class="card">
+  <h3>Tell the terminal about your business</h3>
+  <div class="note" style="padding:0">Used only to tailor "What this means to you". You can change it any time.</div>
+  <label>What best describes you?<select id="pRole"></select></label>
+  <label>Your sector<select id="pSector"><option value="">Choose…</option></select></label>
+  <label>Region (optional)<input id="pRegion" placeholder="e.g. North West"></label>
+  <label>Anything else the analysis should know (optional)<input id="pAbout" maxlength="300" placeholder="e.g. we supply timber to housebuilders on 60-day terms"></label>
+  <div id="pMsg" class="note"></div>
+  <button class="go" id="pSave" style="margin-top:12px">Save</button>
+</div></div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+let TOKEN = null; try { TOKEN = localStorage.getItem("ll_token"); } catch (e) {}
+if (!TOKEN) location.href = "/app";
+const S = { sector: "", q: "", watch: false, days: 7, items: [], seen: new Set(), sel: null, persp: "my_company", meta: null };
+function el(tag, attrs, ...kids) { const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) { if (v == null || v === false) continue; if (k === "class") n.className = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : v); }
+  for (const k of kids.flat()) if (k != null) n.append(k.nodeType ? k : document.createTextNode(String(k))); return n; }
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + TOKEN } });
+  if (r.status === 401) { location.href = "/app"; throw new Error("Sign in again"); }
+  const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.error || "Request failed"); return d;
+}
+const pct = p => p == null ? "" : (p * 100 < 1 ? (p * 100).toFixed(2) : (p * 100).toFixed(1)) + "%";
+const hhmm = t => { if (!t) return ""; const d = new Date(t.length <= 19 ? t + "Z" : t); if (isNaN(d)) return t.slice(11, 16);
+  const today = new Date().toDateString() === d.toDateString(); return today ? d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" }); };
+const band = (b, p) => b ? el("span", { class: "chip b-" + b, title: "Ledgerlight 12-month risk band" }, b + (p != null ? " " + pct(p) : "")) : null;
+const secName = s => (S.meta && S.meta.sectors[s]) || (s === "MACRO" ? "Economy" : s);
+
+setInterval(() => $("#clock").textContent = new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" }), 1000);
+
+/* ---- data ---- */
+async function loadFeed(first) {
+  const p = new URLSearchParams({ days: S.days }); if (S.sector) p.set("sector", S.sector); if (S.q) p.set("q", S.q); if (S.watch) p.set("watchlist", "1");
+  try {
+    const d = await api("/v1/terminal/feed?" + p); S.items = d.items; renderWire(first);
+    $("#live").textContent = "LIVE " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+  } catch (e) { $("#live").textContent = "OFFLINE"; }
+}
+async function loadSectors() {
+  const d = await api("/v1/terminal/sectors");
+  $("#sectors").replaceChildren(...d.sectors.map(s => {
+    const cls = s.change == null ? "flat" : s.change > 0 ? "up" : s.change < 0 ? "down" : "flat";
+    return el("div", { class: "sec" + (S.sector === s.sector ? " on" : ""), "data-s": s.sector, title: `${s.name}: ${s.signals_7d} signals this week, ${s.news_7d} news items${s.negative_share != null ? `, ${s.negative_share}% negative` : ""}. Base failure rate ${pct(s.base_rate)} a year.`,
+      onclick: () => pickSector(s.sector) },
+      el("div", {}, s.name, el("small", {}, `${s.news_7d} news${s.negative_share != null ? ` · ${s.negative_share}% neg` : ""}`)),
+      el("div", { class: "n" }, s.signals_7d), el("div", { class: "chg " + cls }, s.change == null ? "–" : (s.change > 0 ? "▲" : s.change < 0 ? "▼" : "") + Math.abs(s.change) + "%"));
+  }));
+  $("#allSec").classList.toggle("on", !S.sector);
+}
+async function loadMovers() {
+  const d = await api("/v1/terminal/movers");
+  $("#movers").replaceChildren(...(d.movers.length ? d.movers.map(m => el("div", { class: "mv", onclick: () => { S.q = m.number; $("#q").value = m.number; loadFeed(); } },
+      el("b", {}, m.name), band(m.band),
+      el("span", { class: "note", style: "padding:0" }, "12-month risk " + pct(m.probability)),
+      el("span", { class: "chg " + (m.change > 0 ? "up" : m.change < 0 ? "down" : "flat") }, m.change == null ? "new" : (m.change > 0 ? "▲" : "▼") + (Math.abs(m.change) * 100).toFixed(1) + "pt")))
+    : [el("div", { class: "note" }, "Add companies to your watchlist in the portal to see them move here.")]));
+  $("#tick").replaceChildren(...(d.movers.length ? d.movers : [{ name: "Add watchlist companies to see live risk moves", band: null }]).map(m =>
+    el("span", {}, el("span", { style: "color:var(--ink)" }, m.name), " ", m.probability != null ? el("span", { class: "mono" }, pct(m.probability)) : "", " ",
+      m.change != null ? el("span", { class: m.change > 0 ? "up" : "down" }, (m.change > 0 ? "▲" : "▼") + (Math.abs(m.change) * 100).toFixed(1)) : "", " ", band(m.band))));
+}
+
+/* ---- wire ---- */
+function renderWire(first) {
+  $("#count").textContent = `· ${S.items.length} items`;
+  $("#wireEmpty").classList.toggle("hidden", S.items.length > 0);
+  $("#wire").replaceChildren(...S.items.map((i, idx) => {
+    const fresh = !first && !S.seen.has(i.id); S.seen.add(i.id);
+    const tags = [];
+    if (i.relevance) tags.push(el("span", { class: "tag rel" }, i.relevance));
+    i.flags.forEach(f => tags.push(el("span", { class: "tag flag" }, f)));
+    i.sectors.slice(0, 2).forEach(s => tags.push(el("span", { class: "tag" }, secName(s))));
+    if (i.macro) tags.push(el("span", { class: "tag" }, "Economy"));
+    i.companies.slice(0, 3).forEach(c => tags.push(el("span", { class: "tag" }, c.name || c.number, " ", band(c.band))));
+    return el("tr", { class: (S.sel === i.id ? "sel " : "") + (fresh ? "fresh" : ""), "data-i": idx, onclick: () => select(i.id) },
+      el("td", { class: "t" }, hhmm(i.time)),
+      el("td", {}, el("div", { class: "hl" + (i.kind === "signal" ? " signal" : "") }, el("span", { class: "tone " + i.tone, title: "Tone: " + i.tone }), i.headline), tags.length ? el("div", { class: "tags" }, tags) : ""),
+      el("td", { class: "src", title: i.source }, i.source));
+  }));
+}
+function select(id) {
+  S.sel = id; renderWire(true);
+  const i = S.items.find(x => x.id === id); if (!i) return;
+  const persp = S.meta ? S.meta.perspectives : {};
+  const out = el("div", { class: "ans" });
+  const btn = el("button", { class: "go", onclick: () => explain(i, btn, out) }, "What this means to you");
+  $("#detail").replaceChildren(el("div", { class: "det" },
+    el("h2", { class: i.kind === "signal" ? "mono" : "" }, i.headline),
+    el("div", { class: "meta" }, `${i.source} · ${hhmm(i.time)}`, i.url && /^https?:\/\//.test(i.url) ? el("span", {}, " · ", el("a", { href: i.url, target: "_blank", rel: "noopener noreferrer" }, "open article ↗")) : ""),
+    i.companies.length ? el("div", { class: "box" }, el("h4", {}, "Linked companies"), ...i.companies.map(c => el("div", { class: "co" },
+      el("div", {}, el("b", {}, c.name || c.number), el("div", { class: "note", style: "padding:0" }, c.number + (c.on_watchlist ? " · on your watchlist" : ""))),
+      el("div", { style: "text-align:right" }, band(c.band, c.probability), el("div", {}, el("a", { href: "/app?insight=" + encodeURIComponent(c.number), target: "_blank", style: "font-size:11.5px" }, "full insight ↗"))))))
+      : el("div", { class: "box" }, el("h4", {}, "Linked companies"), el("div", { class: "note", style: "padding:0" }, "No tracked company is named in this item. The analysis will use your sector and watchlist instead.")),
+    el("div", { class: "box" }, el("h4", {}, "Point of view"),
+      el("div", { class: "persp" }, Object.entries(persp).map(([k, v]) => el("button", { class: S.persp === k ? "on" : "", onclick: e => { S.persp = k; $$(".persp button").forEach(b => b.classList.remove("on")); e.target.classList.add("on"); } }, v))),
+      btn, out)));
+}
+async function explain(i, btn, out) {
+  btn.disabled = true; btn.textContent = "Researching · analysing · checking…";
+  out.replaceChildren(el("div", { class: "trail", style: "margin-top:10px" }, el("div", {}, "Researcher: gathering your Ledgerlight data"), el("div", {}, "Analyst: working out what it means"), el("div", {}, "Reviewer: checking against the facts")));
+  try {
+    const r = await api("/v1/terminal/explain", { method: "POST", body: JSON.stringify({ item_id: i.id, perspective: S.persp }) });
+    const sec = (title, kids) => kids && kids.length ? [el("h4", { style: "margin-top:12px" }, title), ...kids] : [];
+    out.replaceChildren(el("div", { style: "margin-top:12px" },
+      el("p", { style: "font-size:14px" }, r.summary),
+      ...sec("What it means", [el("ul", {}, r.what_it_means.map(x => el("li", {}, x)))].filter(() => r.what_it_means.length)),
+      ...sec("Your exposure", [el("ul", {}, r.your_exposure.map(x => el("li", {}, x)))].filter(() => r.your_exposure.length)),
+      ...sec("What to do", r.actions.map(a => el("div", { class: "act" }, el("span", { class: "u u-" + a.urgency.replace(" ", "") }, a.urgency.toUpperCase()), el("div", {}, a.action, a.why ? el("div", { class: "why" }, a.why) : "")))),
+      ...sec("Opportunities", [el("ul", {}, r.opportunities.map(x => el("li", {}, x)))].filter(() => r.opportunities.length)),
+      ...sec("Watch next", [el("ul", {}, r.watch_next.map(x => el("li", {}, x)))].filter(() => r.watch_next.length)),
+      el("div", { class: "trail", style: "margin-top:12px" }, (r.agents || ["Answer from cache (last 6 hours)"]).map(a => el("div", {}, a)), el("div", {}, `Confidence: ${r.confidence} · sources: ${r.sources.join(", ")}`)),
+      el("div", { class: "disc" }, r.disclaimer)));
+  } catch (e) { out.replaceChildren(el("div", { class: "note", style: "color:var(--neg);padding:10px 0" }, e.message)); }
+  btn.disabled = false; btn.textContent = "What this means to you";
+}
+
+/* ---- controls ---- */
+function pickSector(s) { S.sector = s; $$(".sec").forEach(x => x.classList.toggle("on", x.dataset.s === s)); loadFeed(true); }
+$("#allSec").addEventListener("click", () => pickSector(""));
+let qt; $("#q").addEventListener("input", e => { clearTimeout(qt); qt = setTimeout(() => { S.q = e.target.value.trim(); loadFeed(true); }, 300); });
+$("#q").addEventListener("keydown", e => { if (e.key === "Enter") { S.q = e.target.value.trim(); loadFeed(true); } });
+$("#wlBtn").addEventListener("click", () => { S.watch = !S.watch; $("#wlBtn").classList.toggle("on", S.watch); loadFeed(true); });
+$("#days").addEventListener("change", e => { S.days = e.target.value; loadFeed(true); });
+$("#legendBtn").addEventListener("click", () => $("#legend").classList.remove("hidden"));
+$("#profBtn").addEventListener("click", () => $("#profile").classList.remove("hidden"));
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.key === "/") { e.preventDefault(); $("#q").focus(); }
+  const idx = S.items.findIndex(x => x.id === S.sel);
+  if (e.key === "j" && S.items.length) select(S.items[Math.min(idx + 1, S.items.length - 1)].id);
+  if (e.key === "k" && S.items.length) select(S.items[Math.max(idx - 1, 0)].id);
+  if (e.key === "Enter" && S.sel) { const b = $(".go"); if (b) b.click(); }
+});
+$("#pSave").addEventListener("click", async () => {
+  try { await api("/v1/terminal/profile", { method: "PUT", body: JSON.stringify({ role: $("#pRole").value, sector: $("#pSector").value || null, region: $("#pRegion").value || null, about: $("#pAbout").value || null }) });
+    $("#profile").classList.add("hidden"); loadFeed(true); } catch (e) { $("#pMsg").textContent = e.message; }
+});
+
+/* ---- boot ---- */
+(async () => {
+  try {
+    S.meta = await api("/v1/terminal/profile");
+    $("#pRole").replaceChildren(...Object.entries(S.meta.roles).map(([k, v]) => el("option", { value: k, selected: S.meta.profile.role === k }, v)));
+    $("#pSector").append(...Object.entries(S.meta.sectors).map(([k, v]) => el("option", { value: k, selected: S.meta.profile.sector === k }, v)));
+    $("#pRegion").value = S.meta.profile.region || ""; $("#pAbout").value = S.meta.profile.about || "";
+    if (!S.meta.profile.sector) $("#profile").classList.remove("hidden");
+  } catch (e) { $("#detail").replaceChildren(el("div", { class: "empty" }, e.message)); return; }
+  await Promise.all([loadFeed(true), loadSectors().catch(() => {}), loadMovers().catch(() => {})]);
+  setInterval(() => loadFeed(false), 30000);
+  setInterval(() => { loadSectors().catch(() => {}); loadMovers().catch(() => {}); }, 300000);
+})();
+</script>
+</body>
+</html>

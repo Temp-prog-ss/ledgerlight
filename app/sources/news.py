@@ -31,7 +31,7 @@ def search_name(name):
 
 def flag_terms(title):
     t = (title or "").lower()
-    return [w for w in NEGATIVE if w in t]
+    return [w for w in NEGATIVE if re.search(r"\b" + re.escape(w) + r"\b", t)]
 
 
 def _when(seendate):

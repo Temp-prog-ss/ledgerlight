@@ -63,6 +63,28 @@ never committed. `LL_DRY_RUN_DELIVERY` starts as `true` (nothing is emailed); se
 Moving local data: stop the local worker, then double-click `migrate-to-cloud.command` and paste the
 database's External Database URL. Safe to re-run. Only ever run one worker (cloud OR laptop), never both.
 
+## Market terminal (`/terminal`)
+
+A dark, terminal-style screen for customers: one live wire of UK market news and Ledgerlight signals, linked to
+company risk. Left: sector monitor (signals this week vs last, news volume and negative share) and watchlist movers.
+Centre: the wire (amber = Ledgerlight signal from an official source, white = news; tone dot; tags for watchlist,
+your sector, high-risk company, insolvency, rates, opportunity). Right: the selected item's linked companies with
+risk bands, a point-of-view selector and **What this means to you**. Key, keyboard shortcuts (`/`, `j`, `k`, Enter)
+and a "My business" profile (role, sector, region, notes) that tailors the analysis.
+
+- **News (`app/sources/market_news.py`):** GDELT sector queries in rotation every 15 minutes (`market_news` job),
+  whole-word theme tagging (rates, insolvency, costs, jobs, demand, deals, regulation, contracts), tone, and exact
+  company-name links to tracked companies. Only headline, link, domain and company numbers are stored.
+- **Agents (`app/terminal.py`):** Researcher gathers Ledgerlight facts (linked companies' bands and reasons, the
+  customer's profile and watchlist exposure in the same sectors); Analyst explains from one perspective (my company,
+  customers, suppliers/contractors, lenders/landlords, opportunity) using Claude when `ANTHROPIC_API_KEY` is set,
+  otherwise a rules engine; Reviewer keeps it to the facts, ranks actions by urgency and adds the disclaimer.
+  Answers are cached for 6 hours per item and perspective; each new answer uses one of the plan's `briefs_per_month`.
+- **Rules kept:** signals come through `views.visible_events`; personal-data notices are never shown, explained or
+  sent to the model; objections hide linked companies.
+- **API:** `GET /v1/terminal/feed`, `/v1/terminal/sectors`, `/v1/terminal/movers`, `POST /v1/terminal/explain`,
+  `GET|PUT /v1/terminal/profile`.
+
 ## Company Insight (risk model)
 
 Every tracked company gets a 12-month probability of formal insolvency, a band (Low / Watch / Elevated / High /
