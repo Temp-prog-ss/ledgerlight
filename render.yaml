@@ -43,7 +43,8 @@ services:
     plan: starter
     buildCommand: pip install -r requirements.txt
     preDeployCommand: python -m scripts.predeploy
-    startCommand: uvicorn app.web:create_app --factory --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    # No --forwarded-allow-ips="*": uvicorn would then take the first X-Forwarded-For entry, which clients can fake.
+    startCommand: uvicorn app.web:create_app --factory --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
       - fromGroup: ledgerlight-shared
@@ -51,7 +52,7 @@ services:
         fromDatabase:
           name: ledgerlight-db
           property: connectionString
-      - key: LL_TRUST_PROXY
+      - key: LL_TRUST_PROXY           # read the client IP from Cloudflare's True-Client-IP header
         value: "true"
 
   - type: worker

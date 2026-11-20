@@ -218,13 +218,17 @@ class ObjectionIn(BaseModel):
 # ---------------- auth & account ----------------
 
 def _client_ip(request):
-    """Use the transport peer address for security-sensitive throttling.
+    """Client address for security-sensitive throttling.
 
-    Do not trust X-Forwarded-For here: clients can supply that header
-    themselves unless a trusted proxy has independently validated the chain.
-    Using the peer address prevents callers from rotating a spoofed header to
-    bypass login and signup throttles.
+    Never trust X-Forwarded-For: clients can set it themselves, and Render's proxy only appends to it.
+    Behind Render (LL_TRUST_PROXY=true) Cloudflare sits in front and sets True-Client-IP / CF-Connecting-IP
+    from the real connection, overwriting anything the client sent. Otherwise use the transport peer.
     """
+    if config.settings.trust_proxy:
+        for h in ("true-client-ip", "cf-connecting-ip"):
+            v = (request.headers.get(h) or "").strip()
+            if v:
+                return v
     return request.client.host if request.client else "unknown"
 
 

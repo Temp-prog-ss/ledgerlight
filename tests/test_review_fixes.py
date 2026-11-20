@@ -139,3 +139,16 @@ def test_tests_ignore_host_production_settings():
     """On Render LL_TRUST_PROXY=true and LL_ENV=production are set; the suite must run on defaults."""
     from app import config
     assert config.settings.trust_proxy is False and config.settings.env != "production"
+
+
+def test_behind_render_throttle_uses_true_client_ip_not_forwarded_for(client, monkeypatch):
+    from app import config
+    monkeypatch.setattr(config.settings, "trust_proxy", True)
+    for i in range(10):  # spoofed X-Forwarded-For changes every time; the real (Cloudflare) IP doesn't
+        client.post("/v1/auth/login", json={"email": "x@y.zz", "password": "nope nope"},
+                    headers={"x-forwarded-for": f"10.0.0.{i}", "true-client-ip": "203.0.113.7"})
+    r = client.post("/v1/auth/login", json={"email": "x@y.zz", "password": "nope nope"},
+                    headers={"x-forwarded-for": "10.9.9.9", "true-client-ip": "203.0.113.7"})
+    assert r.status_code == 429
+    other = client.post("/v1/auth/login", json={"email": "x@y.zz", "password": "nope nope"}, headers={"true-client-ip": "198.51.100.2"})
+    assert other.status_code == 401  # a different real visitor isn't locked out
