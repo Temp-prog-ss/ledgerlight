@@ -195,3 +195,25 @@ def test_admin_insight_staff_only(client, company_factory):
                                                              "source": "Insolvency Service Aug 2026"}).status_code == 200
     assert insight.base_rate("F") == 0.012
     assert client.post("/v1/admin/insight/base-rates", json={"sic_section": "Z", "annual_rate": 0.01, "source": "x y z"}).status_code == 422
+
+
+def test_company_search_by_name_and_number_skips_suppressed(client, company_factory):
+    from app.pipeline import compliance
+    signup(client)
+    company_factory("04444444", "HARBOURLINE BUILD LTD", sic="41201")
+    company_factory("05555555", "HARBOURLINE HIDDEN LTD", sic="41201")
+    compliance.suppress("company", "05555555", "objection")
+    r = client.get("/v1/companies/search", params={"q": "harbourline"})
+    assert r.status_code == 200, r.text
+    names = [c["name"] for c in r.json()["results"]]
+    assert names == ["HARBOURLINE BUILD LTD"]
+    assert client.get("/v1/companies/search", params={"q": "4444444"}).json()["results"][0]["number"] == "04444444"
+    assert client.get("/v1/companies/search", params={"q": "h"}).status_code == 422
+
+
+def test_every_page_links_home(client):
+    for path, link in (("/app", 'data-v="home"'), ("/terminal", "⌂ Home"), ("/admin", "⌂ Home"), ("/outreach", "⌂ Home")):
+        r = client.get(path)
+        assert r.status_code == 200 and link in r.text, path
+    portal = client.get("/app").text
+    assert "SAMPLE_INSIGHT" in portal and "Sample report" in portal and "/v1/companies/search" in portal

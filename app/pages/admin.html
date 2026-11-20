@@ -59,7 +59,7 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
 </head>
 <body>
 <section id="login" class="hidden">
-  <form id="lf"><h2>Ledgerlight admin</h2><p class="fine">Staff accounts only.</p>
+  <form id="lf"><a href="/app" class="fine" style="display:block;margin-bottom:10px">← Home</a><h2>Ledgerlight admin</h2><p class="fine">Staff accounts only.</p>
     <label>Email<input class="i" name="email" type="email" autocomplete="username" required></label>
     <label>Password<input class="i" name="password" type="password" autocomplete="current-password" required></label>
     <div id="lmsg"></div><button class="btn" style="width:100%">Sign in</button></form>
@@ -67,8 +67,8 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
 
 <div class="shell hidden" id="shell">
   <aside>
-    <div class="logo">Ledgerlight</div><div class="sub">Admin</div>
-    <button data-v="overview" class="on">Overview</button>
+    <a class="logo" href="/admin" style="text-decoration:none;display:block">Ledgerlight</a><div class="sub">Admin</div>
+    <button data-v="overview" class="on">⌂ Home (overview)</button>
     <button data-v="customers">Customers <span class="cnt hidden" id="cVet"></span></button>
     <button data-v="data">Data</button>
     <button data-v="review">Review <span class="cnt hidden" id="cRev"></span></button>
@@ -77,6 +77,7 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
     <button data-v="audit">Audit log</button>
     <a href="/outreach">Outreach console ↗</a>
     <a href="/app">Customer portal ↗</a>
+    <a href="/terminal">Market terminal ↗</a>
     <div class="foot"><div id="meEmail"></div><button id="out" style="padding:6px 0">Sign out</button></div>
   </aside>
   <main>

@@ -166,6 +166,43 @@ async def list_decisions(request):
     return ok({"decisions": rows, "actions": ACTIONS, "outcomes": OUTCOMES})
 
 
+async def company_search(request):
+    """Find companies by name or number: our own records first, then Companies House if a key is set."""
+    user, org = current(request)
+    q = (request.query_params.get("q") or "").strip()
+    if len(q) < 2:
+        raise ApiError(422, "Type at least 2 characters")
+    q = q[:80]
+    limit = 10
+    found, seen = [], set()
+    num = companies_house.normalise_number(q) if any(ch.isdigit() for ch in q) else None
+    rows = []
+    if num:
+        rows += db.all("SELECT number, name, status, town, incorporated_on FROM companies WHERE number=?", (num,))
+    rows += db.all("SELECT number, name, status, town, incorporated_on FROM companies WHERE UPPER(name) LIKE ? "
+                   "ORDER BY CASE WHEN UPPER(name) LIKE ? THEN 0 ELSE 1 END, name LIMIT ?",
+                   (f"%{q.upper()}%", f"{q.upper()}%", limit * 2))
+    for r in rows:
+        if r["number"] in seen or not insight.available(r["number"]):
+            continue
+        seen.add(r["number"])
+        found.append({"number": r["number"], "name": r["name"], "status": r["status"], "town": r["town"],
+                      "incorporated_on": r["incorporated_on"], "source": "ledgerlight"})
+    if len(found) < limit and config.settings.companies_house_api_key:
+        try:
+            for it in companies_house.search(q):
+                n = it.get("company_number")
+                if not n or n in seen or not insight.available(n):
+                    continue
+                seen.add(n)
+                found.append({"number": n, "name": it.get("title"), "status": it.get("company_status"),
+                              "town": (it.get("address") or {}).get("locality"), "incorporated_on": it.get("date_of_creation"),
+                              "source": "companies_house"})
+        except Exception:
+            pass  # local results still help; Companies House may be rate limited
+    return ok({"results": found[:limit]})
+
+
 # ---------------- admin ----------------
 
 async def admin_insight(request):
@@ -202,6 +239,7 @@ async def admin_set_base_rate(request):
 
 
 ROUTES = [
+    Route("/v1/companies/search", company_search),
     Route("/v1/insight/company/{number}", company_insight),
     Route("/v1/insight/company/{number}/decisions", add_decision, methods=["POST"]),
     Route("/v1/insight/watchlist", watchlist_insight),

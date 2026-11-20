@@ -76,7 +76,14 @@ tr:hover td{background:#FBFBF8}
 .action{background:var(--soft);border-radius:10px;padding:12px 14px;margin:10px 0}.action b{display:block;margin-bottom:4px}
 .tl{border-left:2px solid var(--line);margin:6px 0 0 6px;padding-left:12px}.tl div{position:relative;padding:4px 0;font-size:13.5px}
 .tl div:before{content:"";position:absolute;left:-17px;top:10px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
-@media (max-width:900px){#auth{grid-template-columns:1fr}.pitch{padding:32px}.grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:1fr}nav.main{overflow:auto}}
+.ac{position:relative}.ac-list{position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 30px #0002;margin-top:4px;max-height:320px;overflow:auto}
+.ac-item{padding:8px 11px;cursor:pointer;border-bottom:1px solid #F0EEE7;font-size:13.5px}.ac-item:last-child{border-bottom:0}.ac-item:hover,.ac-item.on{background:var(--soft)}
+.ac-item small{display:block;color:var(--muted);font-size:11.5px}
+.sample{background:repeating-linear-gradient(135deg,#FFF8E6,#FFF8E6 10px,#FFFDF6 10px,#FFFDF6 20px);border:1px dashed #E7B54A;color:#7A5200;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13.5px;display:flex;gap:12px;align-items:center}
+.is-sample{opacity:.92}.home-link{text-decoration:none}
+.tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;text-align:left}.tile:hover{border-color:var(--accent)}
+.tile b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:4px}.tile span{font-size:13px;color:var(--ink2)}
+@media (max-width:900px){.tiles{grid-template-columns:1fr 1fr!important}#auth{grid-template-columns:1fr}.pitch{padding:32px}.grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:1fr}nav.main{overflow:auto}}
 </style>
 </head>
 <body>
@@ -84,7 +91,7 @@ tr:hover td{background:#FBFBF8}
 <!-- ============ SIGN IN / SIGN UP ============ -->
 <section id="auth" class="hidden">
   <div class="pitch">
-    <div class="mark" id="pMark">Ledgerlight</div>
+    <a class="mark" id="pMark" href="/app" style="color:#fff;text-decoration:none">Ledgerlight</a>
     <div>
       <h1 id="pHead">Company signals, ready to export.</h1>
       <p id="pTag">Insolvency, distress and change events from Companies House, The Gazette and public registers — filtered to your trade.</p>
@@ -113,8 +120,8 @@ tr:hover td{background:#FBFBF8}
 <!-- ============ APP ============ -->
 <div id="app" class="hidden">
   <header class="top"><div class="topin">
-    <div class="brandname" id="bName">Ledgerlight</div>
-    <nav class="main"><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button><a href="/terminal" style="padding:8px 12px;font-weight:700;color:var(--accent);text-decoration:none">Terminal ↗</a></nav>
+    <a class="brandname home-link" id="bName" href="/app" title="Home">Ledgerlight</a>
+    <nav class="main"><button data-v="home" title="Back to the home page">⌂ Home</button><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button><a href="/terminal" style="padding:8px 12px;font-weight:700;color:var(--accent);text-decoration:none">Terminal ↗</a></nav>
     <div class="sp"></div>
     <span class="pill" id="planPill"></span>
     <span class="fine" id="who"></span>
@@ -122,6 +129,21 @@ tr:hover td{background:#FBFBF8}
   </div></header>
   <main>
     <div id="banner" class="banner"></div>
+
+    <!-- Home -->
+    <section id="v-home" class="hidden">
+      <div class="card" style="padding:24px">
+        <h2 style="font-size:26px;margin-bottom:4px" id="hHello">Welcome</h2>
+        <p class="fine" style="margin:0 0 14px">Search any UK company to see its 12-month risk, or jump to one of the areas below.</p>
+        <span class="ac" style="display:block;max-width:620px"><input id="hSearch" placeholder="Search a company by name or number" autocomplete="off"
+          style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:16px"></span>
+      </div>
+      <div class="tiles" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px" id="hTiles"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+        <div class="card" style="margin:0"><h3>Your watchlist at a glance</h3><div id="hWatch"></div></div>
+        <div class="card" style="margin:0"><h3>Latest in your feed</h3><div id="hFeed"></div></div>
+      </div>
+    </section>
 
     <!-- Extract -->
     <section id="v-extract">
@@ -170,8 +192,8 @@ tr:hover td{background:#FBFBF8}
       <div class="grid">
         <div>
           <div class="card"><h3>Look up a company</h3>
-            <label class="f">Company number<input id="iNum" placeholder="e.g. 01234567"></label>
-            <button class="btn" id="iGo">Show insight</button><div id="iMsg"></div>
+            <label class="f">Company name or number<span class="ac" style="display:block"><input id="iNum" placeholder="e.g. Harbourline Build or 01234567" autocomplete="off"></span></label>
+            <button class="btn" id="iGo">Show insight</button> <button class="btn link" id="iSample" type="button">See a sample report</button><div id="iMsg"></div>
             <p class="fine" id="iAllow"></p></div>
           <div class="card"><h3>My watchlist by risk</h3><div id="iBands" class="fine" style="margin-bottom:8px"></div><div id="iList"></div>
             <p class="fine">Watchlist companies are re-scored daily and never use your lookup allowance.</p></div>
@@ -185,7 +207,7 @@ tr:hover td{background:#FBFBF8}
       <div class="grid">
         <div>
           <div class="card"><h3>Add a company</h3>
-            <label class="f">Company number<input id="wNum" placeholder="01234567"></label>
+            <label class="f">Company name or number<span class="ac" style="display:block"><input id="wNum" placeholder="e.g. Harbourline Build or 01234567" autocomplete="off"></span></label>
             <label class="f">Your label (optional)<input id="wLabel" placeholder="e.g. Unit 4 tenant"></label>
             <label class="f">Amount owed to you, £ (optional)<input id="wOwed" type="number" min="0"></label>
             <button class="btn" id="wAdd">Add to watchlist</button><div id="wMsg"></div>
@@ -307,8 +329,10 @@ $("#logout").addEventListener("click", signOut);
 $$("nav.main button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
 function show(v) {
   $$("nav.main button").forEach(x => x.classList.toggle("on", x.dataset.v === v));
-  ["extract", "insight", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
-  if (v === "watch") loadWatch(); if (v === "account") loadAccount(); if (v === "insight") loadInsightList();
+  ["home", "extract", "insight", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  if (v === "watch") loadWatch(); if (v === "account") loadAccount(); if (v === "home") loadHome();
+  if (v === "insight") { loadInsightList(); if (!CURRENT_INSIGHT) renderInsight(SAMPLE_INSIGHT, true); }
+  window.scrollTo(0, 0);
 }
 
 async function start() {
@@ -323,7 +347,7 @@ async function start() {
   if (!OPT.active) ban.append(el("div", { class: "msg err" }, "Your subscription isn't active, so extraction is paused. Choose a plan under Account to carry on."));
   if (OPT.brand.vetted_only && !OPT.vetted) ban.append(el("div", { class: "msg warn" }, "We check every firm before showing estate data. We'll email you once your account is approved, usually within one working day."));
   buildFilters(); LEVEL = OPT.level; buildLevels(); selectAll(); refresh();
-  show("extract");
+  show("home");
   if (qs.get("insight")) { show("insight"); openInsight(qs.get("insight")); }
 }
 
@@ -429,14 +453,20 @@ async function loadWatch() {
       el("tbody", {}, items.map(i => el("tr", {}, el("td", { class: "mono" }, i.company_number), el("td", {}, i.name || "Fetching details…"), el("td", {}, i.status || ""),
         el("td", {}, i.label || ""), el("td", { class: "n" }, i.amount_owed == null ? "" : fmt(i.amount_owed)),
         el("td", {}, el("button", { class: "btn link", onclick: async () => { await api(`/v1/watchlists/${WL.id}/items/${encodeURIComponent(i.company_number)}`, { method: "DELETE" }); loadWatch(); } }, "Remove"))))))
-      : el("div", { class: "empty" }, "Nothing on your watchlist yet. Add companies you supply, rent to or are owed money by."));
+      : el("div", {}, el("div", { class: "sample", style: "margin:12px" }, el("span", {}, el("b", {}, "Example watchlist. "), "Add the companies you supply, rent to or are owed money by, and they'll appear here and be monitored every day.")),
+          el("table", { class: "is-sample" }, el("thead", {}, el("tr", {}, ["Number", "Company", "Status", "Label", "Owed (£)", "Risk"].map(h => el("th", {}, h)))),
+            el("tbody", {}, SAMPLE_WATCH.map(c => el("tr", {}, el("td", { class: "mono" }, c.number), el("td", {}, c.name), el("td", {}, "active"), el("td", {}, c.label),
+              el("td", { class: "n" }, fmt(c.owed)), el("td", {}, bandChip(c.band))))))));
   } catch (err) { msg("#wMsg", err.message); }
 }
 $("#wAdd").addEventListener("click", async () => {
   try {
-    await api(`/v1/watchlists/${WL.id}/items`, { method: "POST", body: JSON.stringify({ company_number: $("#wNum").value.trim(), label: $("#wLabel").value.trim() || null,
+    let num = $("#wNum").dataset.number || $("#wNum").value.trim();
+    if (num && !looksLikeNumber(num)) { const r = await api("/v1/companies/search?q=" + encodeURIComponent(num));
+      if (!r.results.length) throw new Error("No company found with that name. Try the company number."); num = r.results[0].number; }
+    await api(`/v1/watchlists/${WL.id}/items`, { method: "POST", body: JSON.stringify({ company_number: num, label: $("#wLabel").value.trim() || null,
       amount_owed: $("#wOwed").value ? parseInt($("#wOwed").value, 10) : null }) });
-    ["#wNum", "#wLabel", "#wOwed"].forEach(s => $(s).value = ""); msg("#wMsg", "Added.", "ok"); loadWatch(); OPT = await api("/v1/extract/options"); buildFilters();
+    ["#wNum", "#wLabel", "#wOwed"].forEach(s => $(s).value = ""); delete $("#wNum").dataset.number; msg("#wMsg", "Added.", "ok"); loadWatch(); OPT = await api("/v1/extract/options"); buildFilters();
   } catch (err) { msg("#wMsg", err.message); }
 });
 $("#wFile").addEventListener("change", async e => {
@@ -466,17 +496,30 @@ async function loadInsightList() {
     $("#iList").replaceChildren(d.companies.length ? el("table", {}, el("tbody", {}, d.companies.map(c => el("tr", { style: "cursor:pointer", onclick: () => openInsight(c.company_number) },
       el("td", {}, el("b", {}, c.company_name), el("div", { class: "fine" }, c.top_reason || c.sector)), el("td", { class: "n" }, pct(c.probability)), el("td", {}, bandChip(c.band),
       c.trend === "rising" ? el("span", { class: "fine", title: "Rising since last month" }, " ↑") : c.trend === "falling" ? el("span", { class: "fine", title: "Falling since last month" }, " ↓") : "")))))
-      : el("div", { class: "fine" }, "Add companies to your watchlist to rank them by risk."));
+      : el("div", {}, el("div", { class: "sample", style: "margin-bottom:8px" }, el("span", {}, el("b", {}, "Example. "), "Your watchlist companies will be ranked like this.")),
+          el("table", { class: "is-sample" }, el("tbody", {}, SAMPLE_WATCH.map(c => el("tr", { style: "cursor:pointer", onclick: () => { CURRENT_INSIGHT = null; renderInsight(SAMPLE_INSIGHT, true); } },
+            el("td", {}, el("b", {}, c.name), el("div", { class: "fine" }, c.reason)), el("td", { class: "n" }, pct(c.probability)), el("td", {}, bandChip(c.band))))))));
   } catch (err) { msg("#iMsg", err.message); }
 }
-$("#iGo").addEventListener("click", () => openInsight($("#iNum").value.trim()));
-$("#iNum").addEventListener("keydown", e => { if (e.key === "Enter") openInsight($("#iNum").value.trim()); });
+$("#iGo").addEventListener("click", () => openInsight($("#iNum").dataset.number || $("#iNum").value.trim()));
+$("#iSample").addEventListener("click", () => { CURRENT_INSIGHT = null; renderInsight(SAMPLE_INSIGHT, true); });
+attachSearch($("#iNum"), c => openInsight(c.number));
 async function openInsight(number) {
-  if (!number) return msg("#iMsg", "Enter a company number");
+  if (!number) return msg("#iMsg", "Enter a company name or number");
+  if (!looksLikeNumber(number)) {  // a name: use the best match
+    try { const r = await api("/v1/companies/search?q=" + encodeURIComponent(number));
+      if (!r.results.length) return msg("#iMsg", "No company found with that name. Try the company number.");
+      number = r.results[0].number; } catch (err) { return msg("#iMsg", err.message); }
+  }
   msg("#iMsg", ""); $("#iReport").replaceChildren(el("div", { class: "card" }, el("div", { class: "empty" }, "Scoring…")));
   let d;
   try { d = await api("/v1/insight/company/" + encodeURIComponent(number)); } catch (err) { $("#iReport").replaceChildren(el("div", { class: "card" }, el("div", { class: "msg err" }, err.message))); return; }
-  $("#iNum").value = d.company_number;
+  $("#iNum").value = d.company_name || d.company_number;
+  CURRENT_INSIGHT = d;
+  renderInsight(d, false);
+  loadInsightList();
+}
+function renderInsight(d, sample) {
   if (d.allowance) $("#iAllow").textContent = d.allowance.limit == null ? "Unlimited lookups on your plan." : `${fmt(d.allowance.used)} of ${fmt(d.allowance.limit)} lookups used this month.`;
   const ratio = d.sector_base_rate ? d.probability / d.sector_base_rate : null;
   const trend = { rising: "↑ rising since last month", falling: "↓ falling since last month", steady: "→ steady since last month", new: "first assessment" }[d.trend.direction];
@@ -486,10 +529,11 @@ async function openInsight(number) {
   const actionSel = el("select", { class: "" }, Object.entries(ACTION_LABELS).map(([k, v]) => el("option", { value: k }, v)));
   const note = el("input", { placeholder: "Note (optional)" }), reviewer = el("input", { placeholder: "Second reviewer's email (High/Critical + more exposure)", type: "email" });
   const decMsg = el("div");
-  const saveDecision = async () => { try { await api(`/v1/insight/company/${d.company_number}/decisions`, { method: "POST", body: JSON.stringify({ action: actionSel.value, note: note.value || null, second_reviewer: reviewer.value || null }) });
+  const saveDecision = async () => { if (sample) return decMsg.replaceChildren(el("div", { class: "msg warn" }, "This is a sample. Look up a real company to record decisions.")); try { await api(`/v1/insight/company/${d.company_number}/decisions`, { method: "POST", body: JSON.stringify({ action: actionSel.value, note: note.value || null, second_reviewer: reviewer.value || null }) });
     openInsight(d.company_number); } catch (err) { decMsg.replaceChildren(el("div", { class: "msg err" }, err.message)); } };
   $("#iReport").replaceChildren(
-    el("div", { class: "card" },
+    sample ? el("div", { class: "sample" }, el("b", {}, "Sample report"), el("span", {}, "Illustrative data for a made-up company, so you can see what a report looks like. Search above for a real one.")) : "",
+    el("div", { class: "card" + (sample ? " is-sample" : "") },
       el("div", { class: "resulthead" }, el("div", {}, el("h3", { style: "margin:0" }, d.company_name), el("div", { class: "fine" }, `${d.company_number} · ${d.sector} · ${d.status || ""}`)), el("span", { class: "sp" }), bandChip(d.band)),
       el("div", { style: "display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap" },
         el("div", {}, el("div", { class: "prob" }, pct(d.probability)), el("div", { class: "fine" }, "chance of formal insolvency in the next 12 months")),
@@ -513,14 +557,87 @@ async function openInsight(number) {
       d.decisions.length ? el("table", { style: "margin-top:12px" }, el("thead", {}, el("tr", {}, ["When", "Band", "Action", "By", "Outcome"].map(h => el("th", {}, h)))),
         el("tbody", {}, d.decisions.map(x => {
           const sel = el("select", {}, el("option", { value: "" }, "Set outcome…"), Object.entries(OUTCOME_LABELS).map(([k, v]) => el("option", { value: k, selected: x.outcome === k }, v)));
-          sel.addEventListener("change", async () => { if (sel.value) await api(`/v1/insight/decisions/${x.id}`, { method: "PATCH", body: JSON.stringify({ outcome: sel.value }) }); });
+          sel.addEventListener("change", async () => { if (sel.value && !sample) await api(`/v1/insight/decisions/${x.id}`, { method: "PATCH", body: JSON.stringify({ outcome: sel.value }) }); });
           return el("tr", {}, el("td", { class: "fine" }, (x.created_at || "").slice(0, 10)), el("td", {}, x.band), el("td", {}, ACTION_LABELS[x.action] || x.action, x.note ? el("div", { class: "fine" }, x.note) : ""),
             el("td", { class: "fine" }, x.by_email || "", x.second_reviewer ? el("div", {}, "✓ " + x.second_reviewer) : ""), el("td", {}, sel));
         }))) : el("p", { class: "fine" }, "Record what you decide, and later what happened. It keeps your team consistent and teaches the model."),
       el("details", { style: "margin-top:10px" }, el("summary", { class: "fine" }, "Decision rules"), el("ul", { class: "fine" }, d.protocol.rules.map(r => el("li", {}, r))))),
     el("p", { class: "fine" }, "Information from public records, not advice. Probabilities are model estimates; you make the decision."));
-  loadInsightList();
 }
+
+/* ---------- company search (name or number) ---------- */
+const looksLikeNumber = v => /^\s*([A-Za-z]{2})?\d{1,8}\s*$/.test(v || "");
+let CURRENT_INSIGHT = null;
+function attachSearch(input, onPick) {
+  const box = input.parentElement; let list = null, timer = null, results = [], hi = 0;
+  const close = () => { if (list) { list.remove(); list = null; } };
+  const render = () => { close(); if (!results.length) return;
+    list = el("div", { class: "ac-list" }, results.map((c, i) => el("div", { class: "ac-item" + (i === hi ? " on" : ""), onmousedown: e => { e.preventDefault(); pick(c); } },
+      el("b", {}, c.name), el("small", {}, [c.number, c.status, c.town, c.incorporated_on ? "since " + c.incorporated_on.slice(0, 4) : ""].filter(Boolean).join(" · ")))));
+    box.append(list); };
+  const pick = c => { input.value = c.name; input.dataset.number = c.number; close(); onPick && onPick(c); };
+  input.addEventListener("input", () => { delete input.dataset.number; clearTimeout(timer); const q = input.value.trim();
+    if (q.length < 2 || looksLikeNumber(q)) { results = []; return close(); }
+    timer = setTimeout(async () => { try { results = (await api("/v1/companies/search?q=" + encodeURIComponent(q))).results; hi = 0; render(); } catch (e) { close(); } }, 250); });
+  input.addEventListener("keydown", e => {
+    if (list && e.key === "ArrowDown") { hi = Math.min(hi + 1, results.length - 1); render(); e.preventDefault(); }
+    else if (list && e.key === "ArrowUp") { hi = Math.max(hi - 1, 0); render(); e.preventDefault(); }
+    else if (e.key === "Enter") { e.preventDefault(); if (list && results[hi]) pick(results[hi]); else if (onPick && input.value.trim()) onPick({ number: input.value.trim() }); }
+    else if (e.key === "Escape") close(); });
+  input.addEventListener("blur", () => setTimeout(close, 150));
+}
+
+/* ---------- samples (clearly labelled, made-up companies) ---------- */
+const SAMPLE_WATCH = [
+  { number: "SAMPLE01", name: "Example Groundworks Ltd", probability: 0.124, band: "High", reason: "2 directors resigned in 90 days", label: "Site 4 contractor", owed: 18400 },
+  { number: "SAMPLE02", name: "Example Interiors Ltd", probability: 0.046, band: "Elevated", reason: "Accounts overdue", label: "Fit-out customer", owed: 6250 },
+  { number: "SAMPLE03", name: "Example Plant Hire Ltd", probability: 0.018, band: "Watch", reason: "New lender charge", label: "Supplier", owed: 0 },
+  { number: "SAMPLE04", name: "Example Homes Ltd", probability: 0.004, band: "Low", reason: "Established, files on time", label: "Main client", owed: 41200 },
+];
+const SAMPLE_INSIGHT = {
+  company_number: "SAMPLE01", company_name: "Example Groundworks Ltd", status: "active", sector: "Construction", sic_section: "F",
+  probability: 0.124, band: "High", review: "Weekly", sector_base_rate: 0.009, model_version: "v1-priors", trigger: null,
+  trend: { direction: "rising", previous: 0.031 }, peers: { count: 1840, percentile: 97 },
+  reasons: [{ effect: 1.35, reason: "Director resignations in the last 90 days", detail: "2" }, { effect: 1.2, reason: "Accounts are overdue at Companies House" },
+            { effect: 1.0, reason: "County court judgment(s) in the last 12 months", detail: "2" }],
+  other_reasons: [{ effect: 0.5, reason: "New secured borrowing while other warning signs are present" }], reducing: [],
+  protocol: { action: "Take a deposit or pro-forma on new orders; a second person signs off any extension; chase overdue invoices now.", review: "Weekly", two_person_rule: true,
+    rules: ["Start from the sector base rate before the company's own story.", "Score filing, creditors, people and financing separately, then form the overall view.",
+            "Any decision that increases exposure to a High or Critical company needs a second reviewer.", "Before a large new order, write one line on how this customer could fail to pay (pre-mortem).",
+            "Record the decision and, later, the outcome so the model and protocol keep learning."] },
+  timeline: [{ date: "2026-11-12", label: "Director resigned" }, { date: "2026-10-28", label: "Director resigned" }, { date: "2026-10-03", label: "Accounts overdue" },
+             { date: "2026-09-19", label: "New charge" }, { date: "2026-08-02", label: "Ccj" }],
+  news: [{ title: "Groundworks contractors squeezed as housebuilding slows (example headline)", url: "", domain: "example news", published_at: "2026-11-10", flagged: 1, matched_terms: "squeezed" }],
+  decisions: [{ id: "s1", created_at: "2026-11-13", band: "High", action: "deposit_required", note: "50% deposit on the next order", by_email: "you@example.com", second_reviewer: null, outcome: "paid_on_time" }],
+  on_watchlist: true,
+};
+
+/* ---------- home ---------- */
+async function loadHome() {
+  $("#hHello").textContent = `Welcome back${ME.user.name ? ", " + ME.user.name.split(" ")[0] : ""}`;
+  const tiles = [["Company insight", "Risk score, reasons and what to do for any UK company.", () => show("insight")],
+    ["Watchlist", "The companies you supply, rent to or are owed money by, checked daily.", () => show("watch")],
+    ["Extract data", "Build and download your own list of signals as a spreadsheet.", () => show("extract")],
+    ["Market terminal", "Live news and signals for your sector, with what they mean for you.", () => location.href = "/terminal"]];
+  $("#hTiles").replaceChildren(...tiles.map(([t, d, go]) => el("button", { class: "tile", onclick: go }, el("b", {}, t), el("span", {}, d))));
+  try {
+    const w = await api("/v1/insight/watchlist");
+    $("#hWatch").replaceChildren(w.companies.length ? el("div", {},
+        el("div", { style: "margin-bottom:8px" }, ["Critical", "High", "Elevated", "Watch", "Low"].filter(b => w.bands[b]).map(b => el("span", { style: "margin-right:8px" }, bandChip(b), " ", w.bands[b]))),
+        el("table", {}, el("tbody", {}, w.companies.slice(0, 5).map(c => el("tr", { style: "cursor:pointer", onclick: () => { show("insight"); openInsight(c.company_number); } },
+          el("td", {}, el("b", {}, c.company_name), el("div", { class: "fine" }, c.action)), el("td", {}, bandChip(c.band)))))))
+      : el("div", {}, el("p", { class: "fine" }, "Nothing on your watchlist yet."), el("button", { class: "btn sm", onclick: () => show("watch") }, "Add companies")));
+  } catch (e) { $("#hWatch").replaceChildren(el("div", { class: "fine" }, e.message)); }
+  try {
+    const f = await api("/v1/terminal/feed?days=7");
+    $("#hFeed").replaceChildren(f.items.length ? el("div", {}, f.items.slice(0, 6).map(i => el("div", { style: "padding:6px 0;border-bottom:1px solid #F0EEE7;font-size:13.5px" },
+        el("div", {}, i.headline), el("div", { class: "fine" }, `${i.source} · ${(i.time || "").slice(0, 10)}` + (i.relevance ? ` · ${i.relevance}` : "")))),
+        el("a", { href: "/terminal", style: "display:inline-block;margin-top:8px" }, "Open the terminal ↗"))
+      : el("div", { class: "fine" }, "No new items this week."));
+  } catch (e) { $("#hFeed").replaceChildren(el("div", { class: "fine" }, e.message)); }
+}
+attachSearch($("#hSearch"), c => { show("insight"); openInsight(c.number); });
+attachSearch($("#wNum"), null);
 
 /* ---------- account ---------- */
 async function loadAccount() {

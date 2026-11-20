@@ -810,7 +810,8 @@ def create_app():
     from app.portal import ROUTES as PORTAL_ROUTES
     from app.insight_api import ROUTES as INSIGHT_ROUTES
     from app.terminal import ROUTES as TERMINAL_ROUTES
-    return Starlette(routes=ROUTES + PORTAL_ROUTES + INSIGHT_ROUTES + TERMINAL_ROUTES + OUTREACH_ROUTES, exception_handlers={ApiError: on_api_error, Exception: on_error}, middleware=[
+    # Insight routes first, so /v1/companies/search wins over /v1/companies/{number}
+    return Starlette(routes=INSIGHT_ROUTES + ROUTES + PORTAL_ROUTES + TERMINAL_ROUTES + OUTREACH_ROUTES, exception_handlers={ApiError: on_api_error, Exception: on_error}, middleware=[
         Middleware(CORSMiddleware, allow_origins=config.settings.origins, allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
                    allow_headers=["Authorization", "Content-Type"], max_age=600)])
 
