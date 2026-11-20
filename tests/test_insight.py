@@ -190,7 +190,7 @@ def test_admin_insight_staff_only(client, company_factory):
     assert client.get("/v1/admin/insight").status_code == 403
     db.execute("UPDATE users SET role='staff'")
     d = client.get("/v1/admin/insight").json()
-    assert len(d["base_rates"]) == len(insight.SECTION_NAMES) and d["calibration"]["model"] == "v1-priors"
+    assert len(d["base_rates"]) == len(insight.SECTION_NAMES) and d["calibration"]["model"] == insight.MODEL_VERSION
     assert client.post("/v1/admin/insight/base-rates", json={"sic_section": "f", "annual_rate": 0.012,
                                                              "source": "Insolvency Service Aug 2026"}).status_code == 200
     assert insight.base_rate("F") == 0.012
@@ -217,3 +217,32 @@ def test_every_page_links_home(client):
         assert r.status_code == 200 and link in r.text, path
     portal = client.get("/app").text
     assert "SAMPLE_INSIGHT" in portal and "Sample report" in portal and "/v1/companies/search" in portal
+
+
+def test_official_sector_rates_are_the_starting_point():
+    # Insolvency Service, Business insolvency demography 2025 (per 10,000 active businesses)
+    assert abs(insight.base_rate("I") - 0.02676) < 1e-9      # hospitality, highest
+    assert abs(insight.base_rate("F") - 0.01319) < 1e-9      # construction
+    assert abs(insight.base_rate("L") - 0.00598) < 1e-9      # real estate
+    assert insight.base_rate("O") == insight.OVERALL_RATE and abs(insight.OVERALL_RATE - 0.01159) < 1e-9   # suppressed -> overall
+    assert insight.base_rate(None) == insight.OVERALL_RATE
+    assert "Business insolvency demography" in insight.base_rate_source("F")
+    insight.set_base_rate("F", 0.02, "Staff test")              # a staff override still wins
+    assert insight.base_rate("F") == 0.02 and insight.base_rate_source("F") == "Staff test"
+    assert all(len(k) == 1 and 0 < v["rate"] < 400 for k, v in insight.OFFICIAL["sections"].items())
+
+
+def test_age_curve_follows_official_figures():
+    today = date(2026, 11, 20)
+    m = lambda inc: insight.age_multiplier(inc, today)
+    assert m("2026-01-01") < 0.4                              # under 2 years: 37 per 10,000, the lowest
+    assert m("2020-06-01") > 1.4 and m("2018-01-01") > 1.4    # 4-10 years: the peak (169-170)
+    assert m("2000-01-01") == 1.0 and m("") == 1.0
+    assert m("2026-01-01") < m("2023-06-01") < m("2020-06-01")
+
+
+def test_established_on_time_needs_five_years(company_factory):
+    company_factory("06666661", "YOUNG CLEAN LTD", sic="62020", accounts_overdue=0, net_assets=1000, incorporated_on=(TODAY - timedelta(days=300)).isoformat())
+    company_factory("06666662", "OLD CLEAN LTD", sic="62020", accounts_overdue=0, net_assets=1000, incorporated_on="2012-01-01")
+    assert insight.features("06666661")["features"]["established_on_time"] == 0
+    assert insight.features("06666662")["features"]["established_on_time"] == 1

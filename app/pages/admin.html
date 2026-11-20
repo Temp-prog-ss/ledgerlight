@@ -127,7 +127,7 @@ td{padding:7px 10px;border-bottom:1px solid #F0EEE7;vertical-align:top}td.n{text
         <div class="card"><h3>Calibration</h3><p class="fine">For labelled snapshots: what the model predicted against what happened. The model is ready to sell when the two columns are close and AUC is well above 0.5.</p><div class="tablewrap" id="imCal"></div></div>
         <div class="card"><h3>This month's companies by band</h3><div id="imBands"></div><h3 style="margin-top:16px">Customer decisions</h3><div class="tablewrap" id="imDec"></div></div>
       </div>
-      <div class="card" style="margin-top:16px"><h3>Sector base rates</h3><p class="fine">Annual formal-insolvency rate per SIC section. Starting priors until replaced with official figures (Insolvency Service sector tables). Every change is audited.</p>
+      <div class="card" style="margin-top:16px"><h3>Sector base rates</h3><p class="fine">Annual formal-insolvency rate per SIC section, from the Insolvency Service's official figures for 2025 (per 10,000 active businesses). Override a rate only with a better source: overrides win over the official figure, and every change is audited.</p>
         <div id="imMsg"></div><div class="tablewrap" id="imRates"></div></div>
     </section>
 
@@ -336,7 +336,7 @@ async function loadInsight() {
   const order = ["Critical", "High", "Elevated", "Watch", "Low"];
   $("#imBands").replaceChildren(...hbars(order.map(b => ({ band: b, n: (d.bands.find(x => x.band === b) || {}).n || 0 })), r => r.band, r => r.n));
   $("#imDec").replaceChildren(table([{ h: "Action", f: r => nice(r.action) }, { h: "Outcome", f: r => nice(r.outcome || "pending") }, { h: "Count", k: "n", n: 1 }], d.decisions));
-  $("#imRates").replaceChildren(table([{ h: "Section", k: "sic_section" }, { h: "Sector", k: "sector" }, { h: "Annual rate", f: r => pc(r.annual_rate), n: 1 }, { h: "Source", f: r => el("span", { class: "fine" }, r.source) },
+  $("#imRates").replaceChildren(table([{ h: "Section", k: "sic_section" }, { h: "Sector", k: "sector" }, { h: "Annual rate", f: r => pc(r.annual_rate), n: 1 }, { h: "Official", f: r => r.official_rate == null ? "–" : pc(r.official_rate), n: 1 }, { h: "Source", f: r => el("span", { class: "fine" }, r.source) },
     { h: "", f: r => { const inp = el("input", { class: "i", type: "number", step: "0.0001", min: "0.0001", max: "0.5", placeholder: "e.g. 0.0095", style: "width:110px" });
       const src = el("input", { class: "i", placeholder: "Source", style: "width:200px" });
       return el("span", {}, inp, " ", src, " ", el("button", { class: "btn ghost sm", onclick: async () => { try {

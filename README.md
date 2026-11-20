@@ -91,8 +91,10 @@ Every tracked company gets a 12-month probability of formal insolvency, a band (
 Critical), its top three reasons in plain words, trend vs last month, sector percentile and the recommended action
 for the customer's product. Design and evidence: the "Ledgerlight Company Insight" doc.
 
-- **Model (`app/insight.py`):** sector base rate (table `base_rates`, editable in admin → Risk model) × company-age
-  adjustment as the prior; behavioural/event signals add log-odds (late filing, director exits, CCJs, petitions,
+- **Model (`app/insight.py`):** sector base rate × company-age adjustment as the prior. Both come from the
+  Insolvency Service's *Business insolvency demography* (2025 figures, per 10,000 active businesses) in
+  `data/base_rates.json`; refresh that file each June when the next release is out. Staff overrides (table
+  `base_rates`, admin → Risk model) win over the official figure. Then behavioural/event signals add log-odds (late filing, director exits, CCJs, petitions,
   charges under stress, ownership/office changes, sponsor licence loss, net assets, negative news). Formal insolvency
   events override the model. Personal-data notices are never inputs; objections hide a company entirely.
 - **Learning loop:** `insight_snapshot` (daily) writes monthly snapshots; `insight_label` marks failures within 12

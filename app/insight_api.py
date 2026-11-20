@@ -213,7 +213,8 @@ async def admin_insight(request):
         "fit": db.loads(db.get_state("insight_weights"), None),
         "snapshots": snaps.get("n", 0), "latest_month": snaps.get("latest"),
         "base_rates": [{"sic_section": k, "sector": insight.SECTION_NAMES.get(k), "annual_rate": round(insight.base_rate(k), 4),
-                        "source": (db.one("SELECT source FROM base_rates WHERE sic_section=?", (k,)) or {}).get("source") or "starting prior"}
+                        "official_rate": round(insight.OFFICIAL["sections"][k]["rate"] / 10_000, 4) if k in insight.OFFICIAL["sections"] else None,
+                        "source": insight.base_rate_source(k)}
                        for k in sorted(insight.SECTION_NAMES)],
         "bands": db.all("SELECT band, COUNT(*) AS n FROM insight_snapshots WHERE month=? GROUP BY band",
                         (insight.month_key(),)),

@@ -11,35 +11,23 @@ Method (see the "Ledgerlight Company Insight" design doc):
 The starting weights are priors. `fit()` replaces them with weights fitted on Ledgerlight's own labelled
 monthly snapshots once there are enough failures (discrete-time hazard model, Shumway 2001).
 """
+import json
 import math
+from pathlib import Path
 from datetime import date, datetime, timedelta
 
 from app import db
 from app.pipeline import compliance
 from app.pipeline.score import network
 
-MODEL_VERSION = "v1-priors"
-OVERALL_RATE = 0.005          # 49.9 per 10,000 companies a year (Insolvency Service, 12 months to Sept 2026)
+MODEL_VERSION = "v1-priors-is2025"
 MIN_POSITIVES_TO_FIT = 200    # labelled failures needed before fitted weights replace the priors
 
-# Starting sector multipliers on the overall rate. Priors only: refresh from official sector statistics
-# with `set_base_rate` (admin) - construction, wholesale/retail and hospitality lead UK insolvencies.
-SECTOR_MULTIPLIER = {
-    "F": 1.8,   # construction
-    "I": 2.0,   # accommodation and food
-    "G": 1.2,   # wholesale and retail
-    "N": 1.3,   # administrative and support
-    "C": 1.0,   # manufacturing
-    "H": 1.1,   # transport and storage
-    "J": 0.9,   # information and communication
-    "M": 0.7,   # professional, scientific, technical
-    "L": 0.6,   # real estate
-    "K": 0.5,   # financial
-    "Q": 0.6,   # health
-    "P": 0.7,   # education
-    "R": 1.3,   # arts and recreation
-    "S": 1.0,   # other services
-}
+# Official starting rates (Insolvency Service, Business insolvency demography: per-sector and per-age annual
+# insolvency rates for active trading businesses). Staff overrides in the base_rates table take priority.
+OFFICIAL = json.loads((Path(__file__).resolve().parent.parent / "data" / "base_rates.json").read_text())
+OVERALL_RATE = OFFICIAL["overall"] / 10_000          # 115.9 per 10,000 businesses in 2025 -> 1.16% a year
+OFFICIAL_SOURCE = OFFICIAL["source"]
 
 # SIC 2007 division (first two digits) -> section letter
 _SECTIONS = [(1, 3, "A"), (5, 9, "B"), (10, 33, "C"), (35, 35, "D"), (36, 39, "E"), (41, 43, "F"), (45, 47, "G"),
@@ -148,7 +136,18 @@ def base_rate(section):
     row = db.one("SELECT annual_rate FROM base_rates WHERE sic_section=?", (section,)) if section else None
     if row:
         return float(row["annual_rate"])
-    return OVERALL_RATE * SECTOR_MULTIPLIER.get(section or "", 1.0)
+    official = OFFICIAL["sections"].get(section or "")
+    return official["rate"] / 10_000 if official else OVERALL_RATE
+
+
+def base_rate_source(section):
+    """Where a sector's starting rate comes from, in plain words."""
+    row = db.one("SELECT source FROM base_rates WHERE sic_section=?", (section,)) if section else None
+    if row:
+        return row["source"] or "Set by staff"
+    if section in OFFICIAL["sections"]:
+        return OFFICIAL_SOURCE
+    return "Overall rate (no sector figure published) - " + OFFICIAL_SOURCE
 
 
 def set_base_rate(section, rate, source):
@@ -156,13 +155,24 @@ def set_base_rate(section, rate, source):
               ["sic_section"])
 
 
-def age_multiplier(incorporated_on, today=None):
+def company_age_years(incorporated_on, today=None):
     today = today or date.today()
     try:
-        years = (today - date.fromisoformat((incorporated_on or "")[:10])).days / 365.25
+        return (today - date.fromisoformat((incorporated_on or "")[:10])).days / 365.25
     except ValueError:
+        return None
+
+
+def age_multiplier(incorporated_on, today=None):
+    """Official insolvency rate for the company's age band relative to the overall rate. Young companies
+    fail least (they have not yet run through their cash or creditors' patience); 4-10 years is the peak."""
+    years = company_age_years(incorporated_on, today)
+    if years is None:
         return 1.0
-    return 1.6 if years < 2 else 1.2 if years < 5 else 0.8
+    for band in OFFICIAL["age"]["bands"]:
+        if band["under_years"] is None or years < band["under_years"]:
+            return band["rate"] / OFFICIAL["overall"]
+    return 1.0
 
 
 def _logit(p):
@@ -239,7 +249,7 @@ def features(number, today=None):
     # first late filing after a clean record: overdue now, no accounts_overdue event before the last 120 days
     f["accounts_first_late"] = 1 if (f["accounts_overdue"] and not any(
         e["event_type"] == "accounts_overdue" and (e["published_at"] or "")[:10] < d(120) for e in ev)) else 0
-    f["established_on_time"] = 1 if (age_multiplier(c.get("incorporated_on"), today) < 1 and not f["accounts_overdue"]
+    f["established_on_time"] = 1 if ((company_age_years(c.get("incorporated_on"), today) or 0) >= 5 and not f["accounts_overdue"]
                                      and not f["cs_overdue"]) else 0
     trig = [e["event_type"] for e in ev if e["event_type"] in TRIGGERS]
     return {"company": c, "features": f, "triggers": trig, "network": net}

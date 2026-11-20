@@ -1,0 +1,47 @@
+{
+  "_about": "Official starting rates for Company Insight. Staff overrides (Admin > Risk model) are stored in the base_rates table and take priority. Refresh each June when the Insolvency Service publishes the next Business insolvency demography release.",
+  "source": "Insolvency Service, Business insolvency demography 2015 to 2025, Tables B1a/B1b (England and Wales, calendar 2025), published 19 June 2026",
+  "url": "https://www.gov.uk/government/statistics/business-insolvency-demography-2015-to-2025",
+  "year": 2025,
+  "unit": "insolvencies per 10,000 active businesses with company legal status",
+  "overall": 115.9,
+  "overall_2024": 117.2,
+  "overall_2019": 87.9,
+  "sections": {
+    "A": {"rate": 37.0,  "rate_2024": 50.1,  "rate_2019": 25.7,  "insolvencies": 75},
+    "B": {"rate": 176.5, "rate_2024": 173.4, "rate_2019": 118.3, "insolvencies": 15},
+    "C": {"rate": 167.4, "rate_2024": 170.0, "rate_2019": 133.7, "insolvencies": 1685},
+    "D": {"rate": 53.6,  "rate_2024": 54.8,  "rate_2019": 94.3,  "insolvencies": 25},
+    "E": {"rate": 196.6, "rate_2024": 171.2, "rate_2019": 182.7, "insolvencies": 140},
+    "F": {"rate": 131.9, "rate_2024": 136.8, "rate_2019": 127.0, "insolvencies": 3820},
+    "G": {"rate": 133.5, "rate_2024": 126.7, "rate_2019": 98.5,  "insolvencies": 3860},
+    "H": {"rate": 104.2, "rate_2024": 111.7, "rate_2019": 70.2,  "insolvencies": 770},
+    "I": {"rate": 267.6, "rate_2024": 291.2, "rate_2019": 257.9, "insolvencies": 3255},
+    "J": {"rate": 77.9,  "rate_2024": 79.5,  "rate_2019": 41.2,  "insolvencies": 1325},
+    "K": {"rate": 84.6,  "rate_2024": 90.2,  "rate_2019": 70.4,  "insolvencies": 410},
+    "L": {"rate": 59.8,  "rate_2024": 60.7,  "rate_2019": 57.7,  "insolvencies": 545},
+    "M": {"rate": 74.1,  "rate_2024": 73.3,  "rate_2019": 47.1,  "insolvencies": 2490},
+    "N": {"rate": 128.5, "rate_2024": 120.1, "rate_2019": 86.2,  "insolvencies": 2190},
+    "P": {"rate": 83.4,  "rate_2024": 80.0,  "rate_2019": 63.9,  "insolvencies": 270},
+    "Q": {"rate": 72.2,  "rate_2024": 65.9,  "rate_2019": 60.8,  "insolvencies": 520},
+    "R": {"rate": 100.4, "rate_2024": 96.3,  "rate_2019": 79.1,  "insolvencies": 455},
+    "S": {"rate": 96.4,  "rate_2024": 109.6, "rate_2019": 80.9,  "insolvencies": 620}
+  },
+  "_suppressed": "Sections O, T and U are suppressed in the release (fewer than 5 cases) and use the overall rate.",
+  "age": {
+    "source": "Insolvency Service, Business insolvency demography 2015 to 2025, commentary and Table B2 (England and Wales, 2025)",
+    "bands": [
+      {"under_years": 2,    "rate": 37.0,  "note": "published"},
+      {"under_years": 4,    "rate": 119.7, "note": "derived: 2015 rate of 128.7 less the 9-point fall to 2025 stated in the commentary"},
+      {"under_years": 7,    "rate": 169.0, "note": "published"},
+      {"under_years": 10,   "rate": 170.0, "note": "published"},
+      {"under_years": null, "rate": 115.9, "note": "not stated in the text; set to the overall rate until the full table is loaded"}
+    ]
+  },
+  "latest_company_rate": {
+    "value": 49.0,
+    "period": "12 months to 31 October 2026",
+    "note": "Per company on the effective register, including dormant and non-trading companies, so lower than the per-business rate. Shown for context; not used as the prior.",
+    "url": "https://www.gov.uk/government/statistics/company-insolvencies-october-2026"
+  }
+}
