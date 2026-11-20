@@ -133,3 +133,9 @@ def test_bad_stream_line_does_not_crash_handler():
     from app.sources import companies_house as ch
     with pytest.raises(Exception):
         ch.handle_stream_line("companies", '{"resource_kind": "company-profile", "data": ')
+
+
+def test_tests_ignore_host_production_settings():
+    """On Render LL_TRUST_PROXY=true and LL_ENV=production are set; the suite must run on defaults."""
+    from app import config
+    assert config.settings.trust_proxy is False and config.settings.env != "production"

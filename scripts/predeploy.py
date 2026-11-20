@@ -27,7 +27,11 @@ def main():
     if not url.startswith(("postgres://", "postgresql://")):
         sys.exit("DATABASE_URL must point at Postgres")
     test_url = with_search_path(url, "ll_selftest")
-    env = dict(os.environ, LL_TEST_DATABASE_URL=test_url, LL_SKIP_DOTENV="1")
+    # Tests must run with default settings, not production ones: drop Ledgerlight settings and secrets
+    # (e.g. LL_TRUST_PROXY=true on Render made the login-throttle test trust X-Forwarded-For).
+    keep_out = ("LL_", "OUTREACH_", "COMPANIES_HOUSE_", "ANTHROPIC_", "STRIPE_", "SMTP_", "TWILIO_", "RENDER_EXTERNAL_URL")
+    env = {k: v for k, v in os.environ.items() if not k.startswith(keep_out)}
+    env.update(LL_TEST_DATABASE_URL=test_url, LL_SKIP_DOTENV="1")
     print("Running the test suite against Postgres (schema ll_selftest)…", flush=True)
     r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-rf", "-p", "no:cacheprovider"], cwd=ROOT, env=env)
     import psycopg

@@ -15,6 +15,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 @pytest.fixture(autouse=True)
 def fresh_db(tmp_path, monkeypatch):
     pg = os.environ.get("LL_TEST_DATABASE_URL")  # run the suite against real Postgres (see scripts/pg_selftest.sh)
+    for k in list(os.environ):  # never inherit the host's production settings (Render sets LL_TRUST_PROXY etc.)
+        if k.startswith(("LL_", "OUTREACH_", "STRIPE_", "SMTP_", "TWILIO_")) and k not in ("LL_SKIP_DOTENV", "LL_TEST_DATABASE_URL"):
+            monkeypatch.delenv(k)
+    monkeypatch.delenv("RENDER_EXTERNAL_URL", raising=False)
     monkeypatch.setenv("DATABASE_URL", pg or f"sqlite:///{tmp_path}/test.db")
     monkeypatch.setenv("LL_SECRET_KEY", "test-secret-key-that-is-at-least-32-bytes")
     monkeypatch.setenv("LL_DRY_RUN_DELIVERY", "1")
