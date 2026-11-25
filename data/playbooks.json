@@ -1,0 +1,384 @@
+{
+  "_about": "Profit playbooks: specific ways each industry turns Ledgerlight signals into money, with an end-to-end guide. Shown in the portal (Playbooks tab), linked from the terminal, and featured on all nine websites. Information, not advice: each play lists its guardrails.",
+  "features": {
+    "feed": "Live feed and instant alerts",
+    "digest": "Daily digest",
+    "watchlist": "Watchlist",
+    "insight": "Company Insight",
+    "terminal": "Market terminal",
+    "extract": "Data extraction and CSV",
+    "crm": "CRM sync and file drops",
+    "decisions": "Decision log"
+  },
+  "brands": {
+    "sitesentinel": {
+      "name": "SiteSentinel", "industry": "Construction and building services",
+      "plays": [
+        {"id": "ss-retention", "title": "Protect retentions and unpaid valuations",
+         "profit": "Stop losing money to failing clients: get paid, or stop supplying, before a main contractor goes under.",
+         "money": "Illustration: a subcontractor holding £60k of retention across four main contractors that cuts its exposure to the one that fails keeps money that would otherwise rank as an unsecured claim.",
+         "signals": ["Winding-up petitions", "Late accounts", "County court judgments", "New lender charges", "Administration and liquidation"],
+         "features": ["watchlist", "feed", "insight", "terminal", "decisions"],
+         "steps": [
+           "Add every client and main contractor to your Watchlist, with the amount owed and the retention you hold on each.",
+           "Turn on instant alerts for petitions, administrations, CCJs and new charges on those companies.",
+           "When Company Insight moves a client to Elevated or higher, follow its protocol: shorter terms, payment before the next delivery, and a second sign-off for any new order.",
+           "Chase every undisputed sum while the warning signs are early. Once a winding-up petition is presented, payments the company makes can be clawed back, so take advice before accepting them.",
+           "If the client enters administration or liquidation, lodge your claim with the insolvency practitioner before the claim deadline shown in the alert, and stop supplying on credit.",
+           "Open the terminal, press \"What this means for you\" and choose Customers to see the knock-on risk to your other jobs. Record the decision and, later, the outcome in the decision log."
+         ],
+         "track": "Money owed to companies that later failed, compared with the last 12 months.",
+         "guardrails": "Information, not legal advice. Take advice on retention claims, set-off and payments received after a petition."},
+        {"id": "ss-takeover-work", "title": "Win the work a failed contractor leaves behind",
+         "profit": "When a contractor fails, its clients still need their sites finished. Be the first credible firm to offer.",
+         "money": "Illustration: one completion package on a stalled site can be worth more than a year of small tenders, and the client is motivated to move quickly.",
+         "signals": ["Administration and liquidation", "Known live sites", "Public contract awards"],
+         "features": ["feed", "extract", "insight", "terminal", "crm"],
+         "steps": [
+           "Set your feed filters to your trades (SIC codes) and the regions you can cover.",
+           "When a contractor fails, open the alert to see its known live sites and public contracts, and export them to CSV.",
+           "Check each client in Company Insight first: only chase work from clients that are Low or Watch risk.",
+           "Contact the client, and the administrator, who may want contractors to complete works, with a short completion proposal and a start date.",
+           "Price in the extra risk: a mobilisation payment, fortnightly valuations, and a project bank account where the client will agree.",
+           "Push the leads to your CRM with CRM sync and track which ones convert."
+         ],
+         "track": "Completion contracts won from failure alerts, and their margin.",
+         "guardrails": "Approach businesses, not individuals. Don't use the failed firm's confidential information."},
+        {"id": "ss-assets", "title": "Buy plant, materials and customers from insolvency sales",
+         "profit": "Plant hire firms, merchants and contractors can buy equipment and stock below market value, and offer accounts to the failed firm's customers.",
+         "money": "Illustration: plant bought at an insolvency auction and re-hired at your normal rate can pay back far faster than new kit.",
+         "signals": ["Administration and liquidation", "Insolvency practitioner contact", "Sector filters"],
+         "features": ["feed", "extract", "insight", "terminal"],
+         "steps": [
+           "Filter alerts to plant hire, builders' merchants and the trades whose equipment you use.",
+           "When one fails, call the insolvency practitioner or their appointed agent (both in the alert) to register interest in the assets.",
+           "Inspect and bid. The terminal's Opportunity view shows other failures in the same sector, which can depress prices.",
+           "Offer trade accounts to the failed firm's customers, but check each one in Company Insight before you give credit.",
+           "Record what you bought, the price, and the rental income it earns."
+         ],
+         "track": "Asset cost against new price, and payback period.",
+         "guardrails": "Buy through the insolvency practitioner's sale process. Check title and finance on every asset."}
+      ]
+    },
+    "sponsorwatch": {
+      "name": "SponsorWatch", "industry": "Immigration and sponsor compliance",
+      "plays": [
+        {"id": "sw-switch", "title": "Help displaced sponsored workers find a new sponsor",
+         "profit": "When a licensed sponsor fails, its sponsored workers usually have a short window to find a new sponsor. Employers with vacancies need help sponsoring them quickly.",
+         "money": "Illustration: a fixed-fee sponsorship package for each employer that takes on transferring workers, charged to the employer.",
+         "signals": ["Sponsor in insolvency", "Sponsor removed from the register", "Sector and region filters"],
+         "features": ["feed", "extract", "insight", "terminal", "crm"],
+         "steps": [
+           "Set alerts for sponsors in insolvency or removed from the register, in your regions and sectors (care, hospitality, engineering).",
+           "Open the alert to see the sponsor's route and an estimate of how many workers are affected.",
+           "Use extraction to list nearby licensed sponsors in the same sector, and check each in Company Insight so you only refer workers to stable employers.",
+           "Offer those employers a fixed-fee package: assigning Certificates of Sponsorship, right-to-work checks and record keeping.",
+           "Work to the deadline: leave is usually cut to about 60 days, so start the same week.",
+           "Log each placement and outcome in your CRM."
+         ],
+         "track": "Employers helped and workers successfully transferred.",
+         "guardrails": "Charge the employer, not the worker. Sponsors can't recover the Immigration Skills Charge or the Certificate of Sponsorship fee from workers. Only regulated advisers may give immigration advice."},
+        {"id": "sw-audits", "title": "Compliance audits for new and changing sponsors",
+         "profit": "Newly licensed sponsors and companies changing hands have reporting duties they often miss. Sell them an audit before the Home Office does one.",
+         "money": "Illustration: a fixed-fee mock audit, then a monthly retainer for HR compliance.",
+         "signals": ["Newly licensed sponsors", "Change of ownership", "Director changes", "Dormant accounts"],
+         "features": ["digest", "extract", "insight", "crm"],
+         "steps": [
+           "Get a weekly digest of newly licensed sponsors in your area.",
+           "Add an alert for change of ownership and director changes on licensed sponsors: these can trigger reporting duties to the Home Office.",
+           "Export the lists with contact fields and push them to your CRM.",
+           "Offer a mock compliance audit with a written report and an action plan.",
+           "Turn audits into retainers for ongoing reporting and record keeping."
+         ],
+         "track": "Audits sold, and audits that became retainers.",
+         "guardrails": "Business contacts only. Check the latest sponsor guidance for deadlines before you advise."},
+        {"id": "sw-protect", "title": "Protect placements with sponsoring clients",
+         "profit": "Recruiters placing sponsored workers lose fees, and workers lose jobs, when a client sponsor fails. Watch clients and switch early.",
+         "money": "Illustration: keeping one placement fee that would otherwise be refunded under a rebate clause.",
+         "signals": ["Late accounts", "Petitions", "Director exits", "Sponsor rating changes"],
+         "features": ["watchlist", "insight", "terminal", "decisions"],
+         "steps": [
+           "Add every client that sponsors your candidates to the Watchlist.",
+           "When a client moves to Elevated, pause new placements with it and prepare alternative sponsoring employers.",
+           "Use the terminal's Customers view to see sector news that may hit your clients, such as care funding changes.",
+           "Record the decision so your team follows the same rule next time."
+         ],
+         "track": "Placements lost to client failures.",
+         "guardrails": "Treat candidates fairly and keep them informed. Never charge candidates fees."}
+      ]
+    },
+    "estatesignal": {
+      "name": "EstateSignal", "industry": "Probate, wills and inheritance",
+      "plays": [
+        {"id": "es-firms", "title": "Offer services to the firms handling estates",
+         "profit": "Many estates are run by solicitors or professional executors who need valuations, property sales, clearance and auctions. Sell to the firm, never to the family.",
+         "money": "Illustration: one solicitor firm can refer several estates a year once you are its trusted provider.",
+         "signals": ["Deceased-estate notices (vetted, after cooling-off)", "Professional executor or contact firm", "District"],
+         "features": ["feed", "digest", "extract", "crm"],
+         "steps": [
+           "Complete EstateSignal vetting and accept the code of conduct.",
+           "Set your districts and services. Alerts arrive only after the cooling-off period, with the area and the professional firm, never the family's names or address.",
+           "Group notices by firm in your extraction: firms that appear often are your best partners.",
+           "Approach each firm with a business offer: valuation, sale, clearance or auction, with clear fees.",
+           "Track referrals by firm in your CRM."
+         ],
+         "track": "Referral firms signed, and instructions from each.",
+         "guardrails": "Never contact the family from a notice. Respect the cooling-off period and the code of conduct."},
+        {"id": "es-unclaimed", "title": "Trace heirs to unclaimed estates",
+         "profit": "Estates with no known heirs are listed publicly. Probate genealogists research the family tree and work for an agreed share of the inheritance.",
+         "money": "Illustration: an agreed percentage of an estate, paid only if heirs are found and the claim succeeds.",
+         "signals": ["Unclaimed estates (bona vacantia)", "District", "Date added"],
+         "features": ["feed", "extract", "decisions"],
+         "steps": [
+           "Turn on alerts for newly listed unclaimed estates in your areas of research.",
+           "Prioritise by date added and estate size where it is known: newer listings face less competition.",
+           "Research the family tree from public records.",
+           "Offer any heirs you find a written agreement with clear fees and a cooling-off period.",
+           "Make the claim, and record the outcome to sharpen your prioritisation."
+         ],
+         "track": "Cases researched, heirs found, claims paid.",
+         "guardrails": "Be transparent about fees, and give heirs time to decide. Follow your professional body's code."},
+        {"id": "es-dissolved-land", "title": "Buy land owned by dissolved companies",
+         "profit": "When a company is dissolved its property can pass to the Crown. Investors can buy it from the Crown, or help former directors restore the company and sell.",
+         "money": "Illustration: buying at a negotiated price from a motivated seller that has no use for the property.",
+         "signals": ["Dissolved company still owns land", "Land Registry title", "Former directors (business role)"],
+         "features": ["feed", "extract", "insight"],
+         "steps": [
+           "Set alerts for dissolved companies that still hold land titles in your target areas.",
+           "Check the title and its history in the alert, and value the property.",
+           "Either approach the Crown's bona vacantia office to make an offer, or contact the former directors in their business role about restoring the company and selling.",
+           "Take legal advice on restoration and title before you complete."
+         ],
+         "track": "Titles reviewed, offers made, completions.",
+         "guardrails": "Company and property data only. Take legal advice on every purchase."}
+      ]
+    },
+    "distressradar": {
+      "name": "DistressRadar", "industry": "Insolvency and restructuring",
+      "plays": [
+        {"id": "dr-early", "title": "Reach companies early, while rescue is still possible",
+         "profit": "Directors who get advice early have more options: refinancing, a CVA, or a sale. Advisers who reach them first win the work.",
+         "money": "Illustration: a turnaround or CVA engagement started months before a creditor would otherwise force a liquidation.",
+         "signals": ["HMRC petitions", "Accounts overdue", "New alternative-lender charges", "CCJs", "Risk band rising"],
+         "features": ["insight", "feed", "terminal", "extract", "crm", "decisions"],
+         "steps": [
+           "Set filters for the company size, sectors and regions you serve.",
+           "Each morning, review companies whose Company Insight band rose to Elevated or High. The reasons show why.",
+           "Check the timeline and connected companies: directors with past insolvencies change the approach.",
+           "Use the terminal's Opportunity view to see sector pressure, for example a run of hospitality failures.",
+           "Approach directors with a clear, honest offer of an initial review, and transparent fees.",
+           "Record each approach and its outcome, so you learn which signals lead to engagements."
+         ],
+         "track": "Approaches, initial meetings, engagements, fees.",
+         "guardrails": "Follow the Insolvency Code of Ethics: no misleading or high-pressure marketing. Information, not advice."},
+        {"id": "dr-assets", "title": "Buy distressed businesses and assets",
+         "profit": "Administrations and liquidations put businesses, brands, stock and equipment up for sale quickly. Buyers who register interest early get first look.",
+         "money": "Illustration: buying a business and its assets from an administrator at a discount to going-concern value.",
+         "signals": ["Administration and liquidation", "Insolvency practitioner contact", "Sector and size"],
+         "features": ["feed", "insight", "terminal", "watchlist"],
+         "steps": [
+           "Define your buy box: sector, size, region and price range.",
+           "Set alerts on administrations and liquidations that match, with the practitioner's contact details.",
+           "Contact the practitioner the same day to register interest and sign a non-disclosure agreement.",
+           "Use the Company Insight timeline to understand what went wrong before you bid.",
+           "Bid through the practitioner's sale process, and add the business to your Watchlist after completion."
+         ],
+         "track": "Opportunities seen, bids, acquisitions, return on capital.",
+         "guardrails": "Connected-party pre-pack sales have extra rules, including an independent evaluator's report."},
+        {"id": "dr-lend", "title": "Lend to stressed but viable companies",
+         "profit": "Asset-based lenders can fund companies that banks turn away, if they can tell a cash squeeze from a failing business.",
+         "money": "Illustration: a secured facility at a premium rate, to a business whose assets cover the loan.",
+         "signals": ["New charges", "Net assets", "Risk band and reasons", "Late filing"],
+         "features": ["insight", "extract", "watchlist", "decisions"],
+         "steps": [
+           "Filter for companies at Watch or Elevated risk that still show positive net assets.",
+           "Read the reasons: late filing alone is different from CCJs plus director exits.",
+           "Offer a secured facility, and price it to the risk band.",
+           "Once lent, add the borrower to your Watchlist and set the two-person rule for any increase."
+         ],
+         "track": "Facilities written, and losses against the risk band at lending.",
+         "guardrails": "Lending is regulated in some cases. Information, not credit advice."}
+      ]
+    },
+    "tenantguard": {
+      "name": "TenantGuard", "industry": "Commercial property",
+      "plays": [
+        {"id": "tg-rent", "title": "Cut rent losses from failing tenants",
+         "profit": "Spot a tenant in trouble months early, and secure deposits, guarantees or a planned exit before the arrears build up.",
+         "money": "Illustration: a rent deposit taken at renewal from a tenant that later failed covers several months' rent.",
+         "signals": ["Late accounts", "CCJs", "Petitions", "Administration"],
+         "features": ["watchlist", "insight", "feed", "terminal", "decisions"],
+         "steps": [
+           "Add every commercial tenant to the Watchlist, with the rent and the unit.",
+           "At each renewal or assignment, check Company Insight: ask for a deposit or a guarantee from Elevated and High tenants.",
+           "On a petition or CCJ, contact the tenant early to agree a payment plan, or plan for vacancy.",
+           "If the tenant enters administration, remember the moratorium: you need the administrator's consent or the court's permission to forfeit. Lodge your claim.",
+           "Use the terminal's Customers view to watch sector news that hits your tenants, such as retail or hospitality failures."
+         ],
+         "track": "Rent arrears written off, compared with last year.",
+         "guardrails": "Information, not legal advice. Take advice before forfeiture."},
+        {"id": "tg-relet", "title": "Re-let empty units quickly",
+         "profit": "When a chain fails, its competitors and growing local firms want space. Market vacant units to them first.",
+         "money": "Illustration: cutting a void period by two months on a single unit.",
+         "signals": ["Administration of chains", "New incorporations", "Growing companies", "New charges"],
+         "features": ["feed", "extract", "terminal", "crm"],
+         "steps": [
+           "When a retailer or restaurant chain fails, export the list of its sites in your area.",
+           "Find competitors and growing firms in the same sector with extraction filters (sector, region, recent growth).",
+           "Check each prospect tenant in Company Insight before you agree heads of terms.",
+           "Send them a short list of available units, and track enquiries in your CRM."
+         ],
+         "track": "Void months saved, and lettings from these leads.",
+         "guardrails": "Business contacts only."},
+        {"id": "tg-buy", "title": "Buy property from insolvent and dissolved owners",
+         "profit": "Property-owning companies in administration need to sell, and dissolved companies can leave land behind.",
+         "money": "Illustration: buying from an administrator who needs a quick sale.",
+         "signals": ["Property owner in administration", "Dissolved company owns land", "Land titles owned"],
+         "features": ["feed", "extract", "insight"],
+         "steps": [
+           "Set alerts on property-owning companies entering administration or being dissolved, in your target areas.",
+           "Review the titles in the alert and value them.",
+           "Contact the administrator or the Crown's bona vacantia office to make an offer.",
+           "Take legal advice on title before you complete."
+         ],
+         "track": "Titles reviewed, offers, completions.",
+         "guardrails": "Take legal advice on every purchase."}
+      ]
+    },
+    "talentrelease": {
+      "name": "TalentRelease", "industry": "Recruitment and HR",
+      "plays": [
+        {"id": "tr-place", "title": "Place skilled staff released by an insolvency",
+         "profit": "When an employer fails, whole teams look for work overnight. Recruiters who move first place them with clients who need those skills.",
+         "money": "Illustration: several placements from one administration, at your normal fee.",
+         "signals": ["Administration of employers with 50+ staff", "Sector (SIC)", "Location radius", "Headcount"],
+         "features": ["feed", "extract", "terminal", "crm"],
+         "steps": [
+           "Set alerts for administrations and liquidations of employers in your sectors and within your radius.",
+           "Open the alert to see the headcount and likely roles.",
+           "Within 48 hours, post the matching vacancies you hold, targeted at that area and skill set.",
+           "Offer the administrator help running a jobs day for the affected staff.",
+           "Tell hiring clients that experienced people are available, using the terminal to explain the news.",
+           "Track candidates and placements in your CRM."
+         ],
+         "track": "Placements from each insolvency alert.",
+         "guardrails": "Don't scrape personal data. Reach candidates through adverts and channels they choose."},
+        {"id": "tr-outplace", "title": "Sell outplacement to administrators and buyers",
+         "profit": "Administrators and the buyers of failed businesses often need redundancy support and outplacement.",
+         "money": "Illustration: a fixed-fee outplacement programme for a site closure.",
+         "signals": ["Administration", "Insolvency practitioner contact", "Business sold out of administration"],
+         "features": ["feed", "insight", "crm"],
+         "steps": [
+           "Set alerts for administrations with large headcounts.",
+           "Contact the practitioner with a fixed-fee outplacement offer.",
+           "When the business is sold, offer the buyer help restructuring the team.",
+           "Record wins and repeat with the same practitioner firms."
+         ],
+         "track": "Programmes sold, and repeat practitioner firms.",
+         "guardrails": "Business contacts only."},
+        {"id": "tr-growth", "title": "Win hiring clients among growing companies",
+         "profit": "Companies that just raised money, won public contracts or crossed size thresholds are about to hire.",
+         "money": "Illustration: a new client that hires several people in its first year.",
+         "signals": ["New charges (fresh funding)", "Public contract awards", "Size growth", "Deal and funding news"],
+         "features": ["extract", "terminal", "insight", "crm"],
+         "steps": [
+           "Filter for companies with new funding, contract wins or growth in your sectors.",
+           "Use the terminal to read the deal and funding news behind them.",
+           "Check Company Insight: avoid clients at Elevated risk, whose fees may never be paid.",
+           "Approach the hiring manager with a short, relevant shortlist."
+         ],
+         "track": "New clients won, and fees billed.",
+         "guardrails": "Business contacts only."}
+      ]
+    },
+    "creditpulse": {
+      "name": "CreditPulse", "industry": "Trade credit and collections",
+      "plays": [
+        {"id": "cp-limits", "title": "Set credit limits from live risk",
+         "profit": "Fewer bad debts and faster cash, by matching each customer's terms to its current risk.",
+         "money": "Illustration: cutting bad debt by a fraction of a percent of turnover is often worth more than a price rise.",
+         "signals": ["Risk band and reasons", "Petitions", "CCJs", "Late accounts", "Director exits"],
+         "features": ["watchlist", "insight", "feed", "decisions"],
+         "steps": [
+           "Upload your ledger to the Watchlist, with the amount owed by each customer.",
+           "Agree a policy by band: Low normal terms; Watch review; Elevated lower limit and shorter terms; High payment up front and a second sign-off; Critical stop credit and claim.",
+           "Let alerts trigger the policy automatically, and review the watchlist ranked by risk every week.",
+           "Use the decision log so every limit change has a reason and a second reviewer where the rule needs one.",
+           "Compare outcomes against bands each quarter, and tighten or relax the policy."
+         ],
+         "track": "Bad debt as a share of sales, and days sales outstanding.",
+         "guardrails": "Information, not credit advice."},
+        {"id": "cp-collect", "title": "Collect from the riskiest customers first",
+         "profit": "Work the ledger in order of risk times amount, so the cash at most risk comes in first.",
+         "money": "Illustration: collecting an overdue invoice a month before the customer's petition is presented.",
+         "signals": ["Risk band", "Amount owed", "CCJs and petitions"],
+         "features": ["watchlist", "insight", "extract"],
+         "steps": [
+           "Sort your watchlist by risk band, then amount owed.",
+           "Call the top of the list first and agree dates for every overdue amount.",
+           "For High-risk customers, stop further supply until overdue amounts are paid.",
+           "If a petition appears, take advice before accepting payments, because they can be clawed back."
+         ],
+         "track": "Cash collected from High and Critical customers before they failed.",
+         "guardrails": "Collect fairly and lawfully."},
+        {"id": "cp-grow", "title": "Grow sales with your safest customers",
+         "profit": "Raise limits for Low-risk and improving customers to win share that cautious competitors leave behind.",
+         "money": "Illustration: extra orders from customers your competitors have put on stop.",
+         "signals": ["Low and improving risk bands", "Trend", "Peer percentile"],
+         "features": ["insight", "watchlist", "terminal"],
+         "steps": [
+           "Filter your watchlist for Low-risk customers with a falling or stable trend.",
+           "Offer them higher limits or better terms in exchange for more volume.",
+           "Use the terminal's sector view to spot sectors where competitors are likely to tighten credit.",
+           "Review these customers monthly and act at once if the band rises."
+         ],
+         "track": "Extra sales to Low-risk customers, and bad debt on them.",
+         "guardrails": "Information, not credit advice."}
+      ]
+    },
+    "filingpulse": {
+      "name": "FilingPulse", "industry": "Accountants and business services",
+      "plays": [
+        {"id": "fp-new", "title": "Win new companies in their first weeks",
+         "profit": "New companies need an accountant, a bank, insurance and a website. The first helpful offer usually wins.",
+         "money": "Illustration: a first-year package for new companies that becomes an annual client.",
+         "signals": ["New incorporations", "Area and sector", "Director appointments"],
+         "features": ["digest", "extract", "crm"],
+         "steps": [
+           "Get a daily or weekly digest of new companies in your area and the sectors you know.",
+           "Export them with registered office and sector, and push them to your CRM.",
+           "Send a short welcome letter: first deadlines, a first-year package and a free first meeting.",
+           "Follow up before the first confirmation statement is due."
+         ],
+         "track": "New-company clients won per month.",
+         "guardrails": "New limited companies are corporate subscribers; check the rules before emailing sole traders or partnerships."},
+        {"id": "fp-overdue", "title": "Rescue companies with overdue accounts",
+         "profit": "Companies with overdue accounts face penalties that rise the longer they wait, and a risk of being struck off. Many need a new accountant.",
+         "money": "Illustration: a catch-up filing fee, then an ongoing compliance package.",
+         "signals": ["Accounts overdue", "Confirmation statement overdue", "Proposal to strike off"],
+         "features": ["feed", "extract", "insight", "crm"],
+         "steps": [
+           "Set alerts for companies in your area whose accounts or confirmation statements are overdue.",
+           "Prioritise those near a strike-off proposal: they need help most urgently.",
+           "Check Company Insight: overdue accounts plus CCJs means the company may struggle to pay you, so ask for fees up front.",
+           "Offer a fixed-fee catch-up service, then a yearly package."
+         ],
+         "track": "Catch-up jobs won, and how many become annual clients.",
+         "guardrails": "Business contacts only. Be accurate about penalties."},
+        {"id": "fp-growth", "title": "Advise companies as they grow",
+         "profit": "Companies approaching the VAT threshold or moving to larger accounts need advice and better systems.",
+         "money": "Illustration: a VAT registration and bookkeeping upgrade for a fast-growing client.",
+         "signals": ["Turnover near the £90,000 VAT threshold", "Size changes in filed accounts", "New charges"],
+         "features": ["extract", "insight", "terminal", "crm"],
+         "steps": [
+           "Filter for companies whose filed accounts show turnover approaching the VAT threshold or a jump in size.",
+           "Use the terminal to read sector news that explains the growth.",
+           "Offer a growth review: VAT, payroll, systems and funding.",
+           "Track which signals lead to engagements."
+         ],
+         "track": "Growth reviews sold.",
+         "guardrails": "Information, not tax advice."}
+      ]
+    }
+  }
+}

@@ -85,6 +85,8 @@ font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:upperc
 .modal select,.modal input{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px}
 .legend{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12.5px;align-items:center}
 @media (max-width:1100px){.wrap{grid-template-columns:1fr}.col{border-right:0}body{overflow:auto}.wrap{height:auto}}
+.plays .play{display:block;margin:6px 0;padding:8px 10px;border:1px solid var(--amber);border-radius:6px;color:var(--amber2);text-decoration:none;font-weight:600;font-size:13px;background:var(--amberbg)}
+.plays .play:hover{background:var(--selbg)}
 </style>
 </head>
 <body>
@@ -252,6 +254,8 @@ async function explain(i, btn, out) {
       ...sec("Opportunities", [el("ul", {}, r.opportunities.map(x => el("li", {}, x)))].filter(() => r.opportunities.length)),
       ...sec("Watch next", [el("ul", {}, r.watch_next.map(x => el("li", {}, x)))].filter(() => r.watch_next.length)),
       el("div", { class: "trail", style: "margin-top:12px" }, (r.agents || ["Answer from cache (last 6 hours)"]).map(a => el("div", {}, a)), el("div", {}, `Confidence: ${r.confidence} · sources: ${r.sources.join(", ")}`)),
+      (r.playbooks || []).length ? el("div", { class: "plays" }, el("h4", { style: "margin-top:12px" }, "How to profit from this"),
+        ...r.playbooks.map(p => el("a", { class: "play", href: "/app?play=" + encodeURIComponent(p.id), target: "_blank", rel: "noopener" }, "Playbook: " + p.title + " ↗"))) : "",
       el("div", { class: "disc" }, r.disclaimer)));
   } catch (e) { out.replaceChildren(el("div", { class: "note", style: "color:var(--neg);padding:10px 0" }, e.message)); }
   btn.disabled = false; btn.textContent = "What this means to you";

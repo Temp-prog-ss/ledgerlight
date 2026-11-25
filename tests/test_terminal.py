@@ -123,6 +123,7 @@ def test_explain_agents_perspectives_cache_and_limits(client, company_factory):
     assert any("TIMBERLINE" in x.upper() for x in r["your_exposure"]) and r["actions"][0]["urgency"] == "now"
     assert r["disclaimer"].startswith("Information")
     again = client.post("/v1/terminal/explain", json={"item_id": item["id"], "perspective": "customers"}).json()
+    assert r["playbooks"] and again["playbooks"] and r["playbooks"][0]["id"].startswith("ss-")
     assert again["cached"]
     opp = client.post("/v1/terminal/explain", json={"item_id": item["id"], "perspective": "opportunity"}).json()
     assert opp["opportunities"] and "competitor" in opp["opportunities"][0]

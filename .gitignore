@@ -9,3 +9,4 @@ venv/
 test-report.txt
 .fuse_hidden*
 .DS_Store
+build/

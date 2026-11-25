@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 from starlette.responses import HTMLResponse
 from starlette.routing import Route
 
-from app import config, db, insight, plans, views
+from app import config, db, insight, plans, playbooks, views
 from app.sources.http import session
 from app.web import ApiError, body, current, ok, require_active
 
@@ -372,7 +372,8 @@ def explain(org, user, item_id, perspective):
                     "AND perspective=? AND created_at>=? ORDER BY created_at DESC LIMIT 1",
                     (org["id"], item["kind"], item_id, perspective, cutoff))
     if cached:
-        return db.loads(cached["result"], {}) | {"cached": True, "model": cached["model"], "perspective": perspective}
+        return db.loads(cached["result"], {}) | {"cached": True, "model": cached["model"], "perspective": perspective,
+                                                 "playbooks": playbooks.suggest(org["brand"], item)}
     ent = plans.entitlements(org)
     cap = ent.get("briefs_per_month")
     used = (db.one("SELECT briefs FROM usage WHERE org_id=? AND month=?", (org["id"], date.today().strftime("%Y-%m"))) or {}).get("briefs") or 0
@@ -387,6 +388,7 @@ def explain(org, user, item_id, perspective):
     views.bump_usage(org["id"], briefs=1)
     db.audit(user["id"], "terminal_explain", {"org": org["id"], "item": item_id, "perspective": perspective, "model": model})
     return result | {"cached": False, "model": model, "perspective": perspective,
+                     "playbooks": playbooks.suggest(org["brand"], item),
                      "agents": ["Researcher: gathered Ledgerlight facts", f"Analyst: {'Claude' if model != 'rules' else 'rules engine'}",
                                 "Reviewer: checked against the facts"]}
 

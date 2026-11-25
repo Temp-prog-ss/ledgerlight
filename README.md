@@ -85,6 +85,18 @@ and a "My business" profile (role, sector, region, notes) that tailors the analy
 - **API:** `GET /v1/terminal/feed`, `/v1/terminal/sectors`, `/v1/terminal/movers`, `POST /v1/terminal/explain`,
   `GET|PUT /v1/terminal/profile`.
 
+## Profit playbooks
+
+Specific ways each industry turns the data into money, with a step-by-step guide that uses the portal and the terminal
+(3 plays per brand, 24 in all). One source: `data/playbooks.json`.
+
+- **Portal:** the *Profit playbooks* tab (`/app?play=<id>` deep-links one play); the org's own industry comes first.
+- **Terminal:** every "What this means to you" answer links to the matching plays (`app/playbooks.suggest`).
+- **API:** `GET /v1/playbooks` and `GET /v1/playbooks?id=<id>` (signed-in users only).
+- **Websites:** all nine sites carry a Playbooks, Platform and Terminal-preview block built from the same file by
+  `python -m scripts.build_site_blocks` (output in `build/site_blocks/`, not committed). The `APP` URL at the top of
+  that script is where the sites' "Open the portal / terminal" buttons point. Re-apply the blocks when plays change.
+
 ## Company Insight (risk model)
 
 Every tracked company gets a 12-month probability of formal insolvency, a band (Low / Watch / Elevated / High /

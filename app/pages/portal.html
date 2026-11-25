@@ -81,6 +81,17 @@ tr:hover td{background:#FBFBF8}
 .ac-item small{display:block;color:var(--muted);font-size:11.5px}
 .sample{background:repeating-linear-gradient(135deg,#FFF8E6,#FFF8E6 10px,#FFFDF6 10px,#FFFDF6 20px);border:1px dashed #E7B54A;color:#7A5200;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13.5px;display:flex;gap:12px;align-items:center}
 .is-sample{opacity:.92}.home-link{text-decoration:none}
+.pb-wrap{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:16px;align-items:start}
+.pb-list{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px}
+.pb-list h4{margin:12px 0 2px;font:600 11px var(--mono,ui-monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.pb-item{text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font:inherit;font-size:14px}
+.pb-item.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.pb-view .card{margin:0}.pb-steps{counter-reset:s;list-style:none;padding:0;margin:10px 0}
+.pb-steps li{counter-increment:s;position:relative;padding:8px 0 8px 40px;border-bottom:1px solid #F0EEE7;font-size:14.5px}
+.pb-steps li:before{content:counter(s);position:absolute;left:0;top:7px;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px}
+.pb-chips span{display:inline-block;margin:0 6px 6px 0;padding:4px 9px;border-radius:99px;background:#F3F1EA;font-size:12.5px}
+.pb-guard{background:#FFF6E5;border-radius:10px;padding:10px 12px;font-size:13.5px;margin-top:10px}
+@media (max-width:900px){.pb-wrap{grid-template-columns:1fr}.pb-list{position:static}}
 .tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;cursor:pointer;text-align:left}.tile:hover{border-color:var(--accent)}
 .tile b{display:block;font-family:var(--serif);font-size:17px;margin-bottom:4px}.tile span{font-size:13px;color:var(--ink2)}
 @media (max-width:900px){.tiles{grid-template-columns:1fr 1fr!important}#auth{grid-template-columns:1fr}.pitch{padding:32px}.grid{grid-template-columns:1fr}.levels{grid-template-columns:repeat(2,1fr)}.plans{grid-template-columns:1fr}nav.main{overflow:auto}}
@@ -121,7 +132,7 @@ tr:hover td{background:#FBFBF8}
 <div id="app" class="hidden">
   <header class="top"><div class="topin">
     <a class="brandname home-link" id="bName" href="/app" title="Home">Ledgerlight</a>
-    <nav class="main"><button data-v="home" title="Back to the home page">⌂ Home</button><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="account">Account</button><a href="/terminal" style="padding:8px 12px;font-weight:700;color:var(--accent);text-decoration:none">Terminal ↗</a></nav>
+    <nav class="main"><button data-v="home" title="Back to the home page">⌂ Home</button><button data-v="extract" class="on">Extract data</button><button data-v="insight">Company insight</button><button data-v="watch">Watchlist</button><button data-v="plays">Profit playbooks</button><button data-v="account">Account</button><a href="/terminal" style="padding:8px 12px;font-weight:700;color:var(--accent);text-decoration:none">Terminal ↗</a></nav>
     <div class="sp"></div>
     <span class="pill" id="planPill"></span>
     <span class="fine" id="who"></span>
@@ -138,7 +149,7 @@ tr:hover td{background:#FBFBF8}
         <span class="ac" style="display:block;max-width:620px"><input id="hSearch" placeholder="Search a company by name or number" autocomplete="off"
           style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:16px"></span>
       </div>
-      <div class="tiles" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:16px" id="hTiles"></div>
+      <div class="tiles" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:16px" id="hTiles"></div>
       <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
         <div class="card" style="margin:0"><h3>Your watchlist at a glance</h3><div id="hWatch"></div></div>
         <div class="card" style="margin:0"><h3>Latest in your feed</h3><div id="hFeed"></div></div>
@@ -222,6 +233,15 @@ tr:hover td{background:#FBFBF8}
           <div class="tablewrap" id="wTable"></div>
         </div>
       </div>
+    </section>
+
+    <!-- Playbooks -->
+    <section id="v-plays" class="hidden">
+      <div class="card">
+        <h2 style="margin:0 0 4px">Profit playbooks</h2>
+        <p class="fine" style="margin:0">Specific ways to turn your alerts into money, each with a step-by-step guide that uses the tools in this portal and the terminal. Information, not advice: every play lists its guardrails.</p>
+      </div>
+      <div class="pb-wrap"><div class="pb-list" id="pbList"></div><div class="pb-view" id="pbView"></div></div>
     </section>
 
     <!-- Account -->
@@ -329,8 +349,8 @@ $("#logout").addEventListener("click", signOut);
 $$("nav.main button").forEach(b => b.addEventListener("click", () => show(b.dataset.v)));
 function show(v) {
   $$("nav.main button").forEach(x => x.classList.toggle("on", x.dataset.v === v));
-  ["home", "extract", "insight", "watch", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
-  if (v === "watch") loadWatch(); if (v === "account") loadAccount(); if (v === "home") loadHome();
+  ["home", "extract", "insight", "watch", "plays", "account"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  if (v === "watch") loadWatch(); if (v === "account") loadAccount(); if (v === "home") loadHome(); if (v === "plays") loadPlays();
   if (v === "insight") { loadInsightList(); if (!CURRENT_INSIGHT) renderInsight(SAMPLE_INSIGHT, true); }
   window.scrollTo(0, 0);
 }
@@ -349,6 +369,7 @@ async function start() {
   buildFilters(); LEVEL = OPT.level; buildLevels(); selectAll(); refresh();
   show("home");
   if (qs.get("insight")) { show("insight"); openInsight(qs.get("insight")); }
+  if (qs.get("play")) { PB_PICK = qs.get("play"); show("plays"); }
 }
 
 /* ---------- extract builder ---------- */
@@ -618,7 +639,8 @@ async function loadHome() {
   const tiles = [["Company insight", "Risk score, reasons and what to do for any UK company.", () => show("insight")],
     ["Watchlist", "The companies you supply, rent to or are owed money by, checked daily.", () => show("watch")],
     ["Extract data", "Build and download your own list of signals as a spreadsheet.", () => show("extract")],
-    ["Market terminal", "Live news and signals for your sector, with what they mean for you.", () => location.href = "/terminal"]];
+    ["Market terminal", "Live news and signals for your sector, with what they mean for you.", () => location.href = "/terminal"],
+    ["Profit playbooks", "Step-by-step ways to turn your alerts into money.", () => show("plays")]];
   $("#hTiles").replaceChildren(...tiles.map(([t, d, go]) => el("button", { class: "tile", onclick: go }, el("b", {}, t), el("span", {}, d))));
   try {
     const w = await api("/v1/insight/watchlist");
@@ -638,6 +660,30 @@ async function loadHome() {
 }
 attachSearch($("#hSearch"), c => { show("insight"); openInsight(c.number); });
 attachSearch($("#wNum"), null);
+
+/* ---------- profit playbooks ---------- */
+let PB = null, PB_PICK = null;
+const PB_FEATURE_GO = { insight: () => show("insight"), watchlist: () => show("watch"), extract: () => show("extract"), terminal: () => window.open("/terminal", "_blank") };
+async function loadPlays() {
+  try { PB = PB || await api("/v1/playbooks"); } catch (e) { return $("#pbView").replaceChildren(el("div", { class: "msg err" }, e.message)); }
+  const groups = [[PB.plays.length ? `${PB.name} · your industry` : "", PB.plays, PB.brand], ...PB.other.map(o => [o.industry, o.plays, o.brand])];
+  const all = groups.flatMap(g => g[1].map(p => Object.assign({ industry: g[0] }, p)));
+  if (!PB_PICK || !all.some(p => p.id === PB_PICK)) PB_PICK = all[0] && all[0].id;
+  $("#pbList").replaceChildren(...groups.filter(g => g[1].length).flatMap(([h, ps]) => [el("h4", {}, h),
+    ...ps.map(p => el("button", { class: "pb-item" + (p.id === PB_PICK ? " on" : ""), onclick: () => { PB_PICK = p.id; loadPlays(); } }, p.title))]));
+  const p = all.find(x => x.id === PB_PICK); if (!p) return;
+  $("#pbView").replaceChildren(el("div", { class: "card" },
+    el("div", { class: "fine", style: "text-transform:uppercase;letter-spacing:.08em" }, p.industry.replace(" · your industry", "")),
+    el("h2", { style: "margin:4px 0 8px" }, p.title),
+    el("p", { style: "font-size:16px;margin:0 0 8px" }, p.profit),
+    el("p", { class: "fine", style: "margin:0 0 12px" }, p.money),
+    el("h3", { style: "margin:14px 0 6px" }, "Signals it uses"), el("div", { class: "pb-chips" }, p.signals.map(x => el("span", {}, x))),
+    el("h3", { style: "margin:14px 0 6px" }, "Step by step"), el("ol", { class: "pb-steps" }, p.steps.map(x => el("li", {}, x))),
+    el("h3", { style: "margin:14px 0 6px" }, "Tools in this portal"),
+    el("div", { style: "display:flex;gap:8px;flex-wrap:wrap" }, p.features.map(f => PB_FEATURE_GO[f] ? el("button", { class: "btn sm", onclick: PB_FEATURE_GO[f] }, PB.features[f] + " →") : el("span", { class: "pb-chips" }, el("span", {}, PB.features[f])))),
+    el("p", { style: "margin:14px 0 0" }, el("b", {}, "What to track: "), p.track),
+    el("div", { class: "pb-guard" }, el("b", {}, "Guardrails: "), p.guardrails)));
+}
 
 /* ---------- account ---------- */
 async function loadAccount() {
